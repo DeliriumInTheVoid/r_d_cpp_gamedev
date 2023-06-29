@@ -10,3 +10,4 @@ endif()
 
 add_subdirectory ("lesson_01")
 add_subdirectory ("lesson_03")
+add_subdirectory ("lesson_04")
