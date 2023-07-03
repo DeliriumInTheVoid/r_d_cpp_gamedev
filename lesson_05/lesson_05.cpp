@@ -1,5 +1,4 @@
 ﻿#include <iostream>
-#include <limits>
 
 
 void print_menu();
@@ -171,10 +170,7 @@ void triangle_from_angles()
 	std::cout << "Enter angle 3:\n";
 	std::cin >> angle3;
 
-	double diff{ 180 - angle1 - angle2 - angle3 };
-	diff = diff < 0 ? -diff : diff;
-
-	if (diff <= std::numeric_limits< double >::epsilon()) {
+	if (angle1 > 0 && angle2 > 0 && angle3 > 0 && angle1 + angle2 + angle3 <= 180) {
 		std::cout << "angles [" << angle1 << ", " << angle2 << ", " << angle3 << "] form a triangle" << std::endl;
 	}
 	else {
