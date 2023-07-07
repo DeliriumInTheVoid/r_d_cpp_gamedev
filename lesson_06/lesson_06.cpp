@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <cctype>
 
 void print_menu();
 void clear_console();
@@ -257,11 +258,10 @@ void char_calculations()
 			break;
 		}
 
-		if (input >= 'a' && input <= 'z') {
-			char uppercase = input - 'a' + 'A';
-			std::cout << "uppercase value is: " << uppercase << std::endl;
+		if (islower(input)) {
+			std::cout << "uppercase value is: " << static_cast<char>(toupper(input)) << std::endl;
 		}
-		else if (input >= '0' && input <= '9') {
+		else if (isdigit(input)) {
 			const int digit = input - '0';
 			sum += digit;
 			std::cout << "sum: " << sum << std::endl;
