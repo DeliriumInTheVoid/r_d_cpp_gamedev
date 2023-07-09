@@ -250,23 +250,32 @@ void char_calculations()
 
 	std::cout << "enter char '.' to stop.\n";
 
-	while (true) {
+	while (true)
+	{
 		std::cin >> input;
 
-		if (input == '.') {
+		if (input == '.')
+		{
 			std::cout << "stop\n" << std::endl;
 			break;
 		}
 
-		if (islower(input)) {
+		if (islower(input))
+		{
 			std::cout << "uppercase value is: " << static_cast<char>(toupper(input)) << std::endl;
 		}
-		else if (isdigit(input)) {
+		else if (isupper(input))
+		{
+			std::cout << "char was entered in uppercase: " << input << std::endl;
+		}
+		else if (isdigit(input))
+		{
 			const int digit = input - '0';
 			sum += digit;
 			std::cout << "sum: " << sum << std::endl;
 		}
-		else {
+		else
+		{
 			std::cout << "this '" << input << "' char does not process. please enter another one" << std::endl;
 		}
 	}
