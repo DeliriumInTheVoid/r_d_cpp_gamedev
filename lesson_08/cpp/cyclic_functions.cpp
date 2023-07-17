@@ -7,7 +7,9 @@ void count_numbers_by_sign()
 	std::cout << "Enter numbers quantity:\n";
 	std::cin >> numbers_qty;
 
-	while (--numbers_qty >= 0)
+	std::cout << "Enter numbers :\n";
+
+	for (int i = numbers_qty; i > 0; --i)
 	{
 		int number{ 0 };
 		std::cin >> number;
@@ -30,25 +32,19 @@ void count_numbers_by_sign()
 
 long long factorial_cycle(const int count)
 {
-	long long result{ 0 };
-
 	if (count == 0 || count == 1)
 	{
-		result = 1;
+		return 1;
 	}
-	else
+
+	long long current_value = 1;
+
+	for (int i = 2; i <= count; i++)
 	{
-		long long current_value = 1;
-
-		for (int i = 2; i <= count; i++)
-		{
-			current_value *= i;
-		}
-
-		result = current_value;
+		current_value *= i;
 	}
 
-	return result;
+	return current_value;
 }
 
 void print_natural_numbers_cycle_ascending(const int count)
