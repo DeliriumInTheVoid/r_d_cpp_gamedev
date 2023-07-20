@@ -119,4 +119,9 @@ void walk_array()
     }
 
     walk_array(arr, columns_num, rows_num);
+
+    for (int i = 0; i < rows_num; ++i) {
+        delete[] arr[i];
+    }
+    delete[] arr;
 }
