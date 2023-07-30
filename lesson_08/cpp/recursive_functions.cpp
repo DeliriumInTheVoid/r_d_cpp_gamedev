@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "../headers/recursive_functions.hpp"
 
 long long factorial_recursion(const int count)
