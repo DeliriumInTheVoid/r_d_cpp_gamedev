@@ -8,8 +8,8 @@
 
 void print_menu();
 
-void bubble_sort();
-void q_sort();
+void sort_array_with_bubble_sort();
+void sort_array_by_columns_and_rows();
 
 
 int main()
@@ -27,10 +27,10 @@ int main()
         switch (user_choice)
         {
         case 1:
-            bubble_sort();
+            sort_array_with_bubble_sort();
             break;
         case 2:
-            q_sort();
+            sort_array_by_columns_and_rows();
             break;
         case 3:
             std::cout << "Exit\n";
@@ -49,14 +49,14 @@ int main()
 
 void print_menu()
 {
-    std::cout << "1. bubble sort\n";
-    std::cout << "2. quick sort\n";
+    std::cout << "1. sort array with bubble sort\n";
+    std::cout << "2. sort array by columns and rows\n";
     std::cout << "3. Exit\n\n";
 
     std::cout << "Enter number:";
 }
 
-void bubble_sort()
+void sort_array_with_bubble_sort()
 {
     std::cout << "enter array size for generating: \n";
 
@@ -79,10 +79,10 @@ void bubble_sort()
 }
 
 
-void q_sort()
+void sort_array_by_columns_and_rows()
 {
     constexpr int rows{ 4 };
-    constexpr int columns{ 5 };
+    constexpr int columns{ array_size };
 
     constexpr int arr_size = rows * columns;
 
@@ -107,6 +107,6 @@ void q_sort()
     sort(arr, rows, columns, sorting_direction::by_column);
 
     std::cout << std::endl;
-    std::cout << "array after sorting by column:\n";
+    std::cout << "array after sorting by columns:\n";
     utl::print_arr(arr[0], rows, columns);
 }

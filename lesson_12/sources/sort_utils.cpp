@@ -1,10 +1,10 @@
 #include "../headers/sort_utils.hpp"
 
-void quick_sort_in_row(int arr[][5], const int low, const int high, const int row);
-int get_pivot_index_in_row(int arr[][5], const int low, const int high, const int row);
+void quick_sort_in_row(int arr[][array_size], const int low, const int high, const int row);
+int get_pivot_index_in_row(int arr[][array_size], const int low, const int high, const int row);
 
-void quick_sort_in_column(int arr[][5], const int low, const int high, const int column);
-int get_pivot_index_in_column(int arr[][5], const int low, const int high, const int column);
+void quick_sort_in_column(int arr[][array_size], const int low, const int high, const int column);
+int get_pivot_index_in_column(int arr[][array_size], const int low, const int high, const int column);
 
 void swap(int& a, int& b);
 
@@ -18,9 +18,7 @@ void bubble_sort(int arr[], const int size)
         {
             if (arr[j] > arr[j + 1])
             {
-                const int tmp{ arr[j] };
-                arr[j] = arr[j + 1];
-                arr[j + 1] = tmp;
+                swap(arr[j], arr[j + 1]);
                 had_swap = true;
             }
         }
@@ -32,7 +30,7 @@ void bubble_sort(int arr[], const int size)
     }
 }
 
-void sort(int arr[][5], const int rows, const int columns, const sorting_direction direction)
+void sort(int arr[][array_size], const int rows, const int columns, const sorting_direction direction)
 {
     if (direction == sorting_direction::by_column)
     {
@@ -51,7 +49,7 @@ void sort(int arr[][5], const int rows, const int columns, const sorting_directi
 
 }
 
-void quick_sort_in_row(int arr[][5], const int low, const int high, const int row)
+void quick_sort_in_row(int arr[][array_size], const int low, const int high, const int row)
 {
     if (low < high)
     {
@@ -62,7 +60,7 @@ void quick_sort_in_row(int arr[][5], const int low, const int high, const int ro
     }
 }
 
-int get_pivot_index_in_row(int arr[][5], const int low, const int high, const int row)
+int get_pivot_index_in_row(int arr[][array_size], const int low, const int high, const int row)
 {
     const int pivot = arr[row][high];
     int i = low - 1;
@@ -81,7 +79,7 @@ int get_pivot_index_in_row(int arr[][5], const int low, const int high, const in
     return i + 1;
 }
 
-void quick_sort_in_column(int arr[][5], const int low, const int high, const int column)
+void quick_sort_in_column(int arr[][array_size], const int low, const int high, const int column)
 {
     if (low < high)
     {
@@ -92,7 +90,7 @@ void quick_sort_in_column(int arr[][5], const int low, const int high, const int
     }
 }
 
-int get_pivot_index_in_column(int arr[][5], const int low, const int high, const int column)
+int get_pivot_index_in_column(int arr[][array_size], const int low, const int high, const int column)
 {
     const int pivot = arr[high][column];
     int i = low - 1;
