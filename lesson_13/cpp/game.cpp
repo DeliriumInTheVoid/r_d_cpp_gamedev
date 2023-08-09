@@ -7,8 +7,8 @@
 #include "../headers/common_utils.hpp"
 
 void play(std::string_view secret_word);
-std::unordered_map<char, std::unique_ptr<std::vector<unsigned>>> parse_secret_word(const std::string_view secret_word);
-bool check_guess(const std::unordered_map<char, std::unique_ptr<std::vector<unsigned>>>& chars_map, const std::string& guess, std::string& result_str);
+std::unordered_map<char, std::vector<unsigned>> parse_secret_word(const std::string_view secret_word);
+bool check_guess(const std::unordered_map<char, std::vector<unsigned>>& chars_map, const std::string& guess, std::string& result_str);
 
 void play_daily_word()
 {
@@ -86,9 +86,9 @@ void play(const std::string_view secret_word)
     }
 }
 
-std::unordered_map<char, std::unique_ptr<std::vector<unsigned>>> parse_secret_word(const std::string_view secret_word)
+std::unordered_map<char, std::vector<unsigned>> parse_secret_word(const std::string_view secret_word)
 {
-    std::unordered_map<char, std::unique_ptr<std::vector<unsigned>>> chars_map{};
+    std::unordered_map<char, std::vector<unsigned>> chars_map{};
     const size_t len = secret_word.length();
     for (unsigned i = 0; i < len; ++i)
     {
@@ -96,17 +96,17 @@ std::unordered_map<char, std::unique_ptr<std::vector<unsigned>>> parse_secret_wo
 
         if (!chars_map.contains(ch))
         {
-            auto chars_positions = std::make_unique<std::vector<unsigned>>();
+            auto chars_positions = std::vector<unsigned>{};
             chars_map[ch] = std::move(chars_positions);
         }
 
-        chars_map[ch]->push_back(i);
+        chars_map[ch].push_back(i);
     }
 
     return chars_map;
 }
 
-bool check_guess(const std::unordered_map<char, std::unique_ptr<std::vector<unsigned>>>& chars_map, const std::string& guess, std::string& result_str)
+bool check_guess(const std::unordered_map<char, std::vector<unsigned>>& chars_map, const std::string& guess, std::string& result_str)
 {
     const size_t guess_len = guess.length();
     bool correct_guess{ true };
@@ -116,13 +116,13 @@ bool check_guess(const std::unordered_map<char, std::unique_ptr<std::vector<unsi
         if (auto ch = guess[i]; chars_map.contains(ch))
         {
             auto& chars_positions = chars_map.at(ch);
-            const size_t chars_pos_len = chars_positions->size();
+            const size_t chars_pos_len = chars_positions.size();
 
             result_str[i] = ch;
             bool is_on_place{ false };
             for (size_t j = 0; j < chars_pos_len; ++j)
             {
-                if (i == chars_positions->at(j))
+                if (i == chars_positions.at(j))
                 {
                     result_str[i] = toupper(ch);
                     is_on_place = true;
