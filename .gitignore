@@ -32,3 +32,17 @@
 *.app
 /.vs/
 /out/
+
+# binaries
+*.pdb
+*.dat
+
+# external libs binaries
+!/external/VisualLeakDetector/bin/Win64/*.dll
+!/external/VisualLeakDetector/bin/Win32/*.dll
+
+!/external/VisualLeakDetector/bin/Win64/*.pdb
+!/external/VisualLeakDetector/bin/Win32/*.pdb
+
+!/external/VisualLeakDetector/lib/Win64/*.lib
+!/external/VisualLeakDetector/lib/Win32/*.lib
