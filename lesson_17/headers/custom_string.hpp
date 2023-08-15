@@ -11,12 +11,12 @@ public:
     StringCustom& operator=(const char* c_str);
     void assign(const char* c_str);
 
-    ~StringCustom() { delete m_str; }
+    ~StringCustom() { delete[] m_str; } // ~StringCustom() { delete(?) m_str; }
 
     std::size_t getLen() const { return strlen(m_str); }
     std::size_t getSize() const { return getLen() + 1; }
 private:
-    char* m_str;
+    char* m_str{ nullptr }; // char* m_str;
 
 };
 
@@ -28,9 +28,10 @@ StringCustom::StringCustom()
 
 StringCustom& StringCustom::operator=(const char* c_str)
 {
+    delete[] m_str; m_str = nullptr;// MEMORY LEAK
     if (c_str == nullptr)
     {
-        m_str = new char;
+        m_str = new char[1]; //m_str = new char(?);
         *m_str = '\0';
     }
     else
@@ -38,7 +39,7 @@ StringCustom& StringCustom::operator=(const char* c_str)
         const std::size_t size = strlen(c_str);
         m_str = new char[size];
 
-        for (int i = 0; i < size; i++)
+        for (std::size_t i = 0; i < size; i++) // for (int(?) i = 0; i < size; i++)
         {
             m_str[i] = c_str[i];
         }
@@ -49,6 +50,7 @@ StringCustom& StringCustom::operator=(const char* c_str)
 
 void StringCustom::assign(const char* c_str)
 {
+    delete[] m_str; m_str = nullptr;// MEMORY LEAK
     m_str = new char[strlen(c_str) + 1];
     strcpy(m_str, c_str);
 }
@@ -87,4 +89,5 @@ void clearArrayOfArrays(int** arrayPtr, int rows)
         //remove each individual array in bigger container one by one
         delete[] arrayPtr[i];
     }
+    delete[] arrayPtr; // MEMORY LEAK
 }
