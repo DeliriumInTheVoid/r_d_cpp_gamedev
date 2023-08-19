@@ -22,7 +22,6 @@ class player
 {
 public:
     friend std::ostream& operator << (std::ostream& os, player& instance);
-    friend class team;
 
 public:
     player(std::string_view name, const player_type type, const float health);
@@ -30,6 +29,7 @@ public:
 public:
     void add_weapon(const weapon&& weapon);
     void print_player_info();
+    void set_team(team* team);
 
 private:
 

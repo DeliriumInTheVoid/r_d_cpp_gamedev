@@ -97,7 +97,7 @@ void aggregation_with_player_and_team()
     player pl3{ "player3", player_type::assault, 80 };
     pl3.add_weapon(weapon{ "M4A1", 100, 180 });
 
-    player pl4{ "player3", player_type::medic, 50 };
+    player pl4{ "player4", player_type::medic, 50 };
     pl4.add_weapon(weapon{ "knife", 50, 1 });
 
     team team{ "A team" };

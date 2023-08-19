@@ -14,7 +14,7 @@ void team::add_player(player* player)
     if (num_players_ < team_max_players_num)
     {
         players_[num_players_++] = player;
-        player->team_ = this;
+        player->set_team(this);
     }
     else
     {
@@ -28,11 +28,12 @@ void team::remove_player(player* player)
     {
         if (players_[i] == player)
         {
-            players_[i]->team_ = nullptr;
-            for (int j = i; j < num_players_ - 1; ++j)
+	        const int last_index = num_players_ - 1;
+            if (num_players_ > 1 && i < last_index)
             {
-                players_[j] = players_[j + 1];
+                std::swap(players_[i], players_[last_index]);
             }
+            players_[last_index]->set_team(nullptr);
             players_[--num_players_] = nullptr;
             break;
         }

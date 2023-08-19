@@ -74,3 +74,8 @@ void player::print_player_info()
 {
     std::cout << *this;
 }
+
+void player::set_team(team* team)
+{
+    team_ = team;
+}
