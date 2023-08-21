@@ -48,21 +48,30 @@ private:
 //CASE 2
 class Base {
 public:
-    virtual void print() {
+    //if present at least one virtual function virtual destructor must be declared
+    virtual ~Base(){}
+
+    virtual void print() const {
         std::cout << "Base" << std::endl;
     }
 };
 
 class Derived1 : public Base {
 public:
-    void print() {
+    ~Derived1(){}
+
+    //override for virtual function
+    void print() const override {
         std::cout << "Derived1" << std::endl;
     }
 };
 
 class Derived2 : public Base {
 public:
-    void print() {
+    ~Derived2() {}
+
+    //override for virtual function
+    void print() const override {
         std::cout << "Derived2" << std::endl;
     }
 };
@@ -73,9 +82,15 @@ public:
 class Animal
 {
 public:
-    virtual void eat() {};
+    //if present at least one virtual function virtual destructor must be declared
+    virtual ~Animal(){}
 
-    virtual void sleep()
+    virtual void eat()
+    {
+        std::cout << "Animal eat method\n";
+    }
+
+    virtual void sleep() const
     {
         std::cout << "Animal sleep method\n";
     }
@@ -84,20 +99,40 @@ public:
 class Dog : public Animal
 {
 public:
+
+    ~Dog(){}
+
     void eat() override
     {
         eatCallsCounter++;
         std::cout << "Dog eating\n" << eatCallsCounter;
     }
 
+    //override for virtual function can be present.
+    //If not, there is no reason to make it virtual for current hierarchy
+    void sleep() const override
+    {
+        std::cout << "Dog sleep method\n";
+    }
+
 private:
-    int eatCallsCounter = 0;
+    unsigned eatCallsCounter = 0;
 };
 
 class Cat : public Animal
 {
 public:
-    void eat() const
+    ~Cat(){}
+
+    //override for virtual function can be present.
+    //If not, there is no reason to make it virtual for current hierarchy
+    void sleep() const override
+    {
+        std::cout << "Cat sleep method\n";
+    }
+
+    //override for virtual function
+    void eat() override
     {
         std::cout << "Cat eating\n";
     }
@@ -110,7 +145,10 @@ void toLower(std::string& str)
     //similar to for (int i = 0; i < str.size(); i++) { str[i]... }
     for (char& ch : str)
     {
-        ch = std::tolower(ch);
+        //static_cast for safe conversion
+        //https://en.cppreference.com/w/cpp/string/byte/tolower
+        //ch = std::tolower(ch);
+        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
     }
 }
 
@@ -129,7 +167,10 @@ int main()
 {
     //CASE 1
     A* a = new A();
-    B* b = static_cast<B*>(a);
+    // down casting issue. static_cast instead of dynamic_cast.
+    // A is base class for B and A does not contain functions created for B.
+    // B* b = static_cast<B*>(a); 
+    B* b = new B();
 
     b->print("sdf");
     b->print();
@@ -142,7 +183,10 @@ int main()
     Base* bp = dynamic_cast<Base*>(&d1);
     bp->print();
 
-    Derived2* dp2 = dynamic_cast<Derived2*>(bp);
+    // down casting issue
+    //Derived2* dp2 = dynamic_cast<Derived2*>(bp);
+    Derived2* d2 = new Derived2();
+    Base* dp2 = dynamic_cast<Derived2*>(d2);
     dp2->print();
 
 
@@ -152,7 +196,9 @@ int main()
     std::cin >> petChoice;
 
     Animal* animal = createAnimal(petChoice);
-    Dog* dog = static_cast<Dog*>(animal);
+    //dynamic_cast<T>() must be used for down casting and runtime casting
+    //Dog* dog = static_cast<Dog*>(animal);
+    Dog* dog = dynamic_cast<Dog*>(animal);
     if (dog != nullptr)
     {
         dog->eat();
