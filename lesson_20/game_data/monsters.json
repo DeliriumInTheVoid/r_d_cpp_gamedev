@@ -1,0 +1,118 @@
+{
+  "monsters": [
+    {
+      "name": "Balrog",
+      "level": 8,
+      "hit points": 12,
+      "abilities": [ "Haste", "Fire Breath" ]
+    },
+    {
+      "name": "Dragon",
+      "level": 10,
+      "hit points": 15,
+      "abilities": [ "Can't be killed by level 1 cards" ]
+    },
+    {
+      "name": "Troll",
+      "level": 6,
+      "hit points": 10,
+      "abilities": [ "Can regenerate" ]
+    },
+    {
+      "name": "Orc",
+      "level": 4,
+      "hit points": 8,
+      "abilities": []
+    },
+    {
+      "name": "Goblin",
+      "level": 2,
+      "hit points": 6,
+      "abilities": []
+    },
+    {
+      "name": "Mummy",
+      "level": 5,
+      "hit points": 10,
+      "abilities": [ "Can't be attacked by ranged weapons" ]
+    },
+    {
+      "name": "Giant Spider",
+      "level": 3,
+      "hit points": 8,
+      "abilities": [ "Can climb walls" ]
+    },
+    {
+      "name": "Vampire",
+      "level": 7,
+      "hit points": 12,
+      "abilities": [ "Can drain the life force of other players" ]
+    },
+    {
+      "name": "Werewolf",
+      "level": 9,
+      "hit points": 15,
+      "abilities": [ "Can transform during the night" ]
+    },
+    {
+      "name": "Minotaur",
+      "level": 8,
+      "hit points": 12,
+      "abilities": [ "Can't be attacked from behind" ]
+    },
+    {
+      "name": "Gnome",
+      "level": 1,
+      "hit points": 4,
+      "abilities": [ "Can hide in small spaces" ]
+    },
+    {
+      "name": "Umber Hulk",
+      "level": 5,
+      "hit points": 10,
+      "abilities": [ "Can cause madness" ]
+    },
+    {
+      "name": "Rust Monster",
+      "level": 4,
+      "hit points": 8,
+      "abilities": [ "Can rust metal" ]
+    },
+    {
+      "name": "Kobold",
+      "level": 2,
+      "hit points": 6,
+      "abilities": [ "Can be sacrificed to draw a card" ]
+    },
+    {
+      "name": "Shoggoth",
+      "level": 7,
+      "hit points": 12,
+      "abilities": [ "Can split into two smaller Shoggoths" ]
+    },
+    {
+      "name": "Yeti",
+      "level": 8,
+      "hit points": 12,
+      "abilities": [ "Can freeze players" ]
+    },
+    {
+      "name": "Cultist",
+      "level": 6,
+      "hit points": 10,
+      "abilities": [ "Can summon other monsters" ]
+    },
+    {
+      "name": "Mind Flayer",
+      "level": 9,
+      "hit points": 15,
+      "abilities": [ "Can control other players' minds" ]
+    },
+    {
+      "name": "Illithid",
+      "level": 10,
+      "hit points": 15,
+      "abilities": [ "Can enslave other players" ]
+    }
+  ]
+}
