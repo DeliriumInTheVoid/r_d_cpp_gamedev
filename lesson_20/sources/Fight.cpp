@@ -16,7 +16,7 @@ void Fight::start()
 
 void Fight::applyModifier(int choice)
 {
-    Modifier* modifier = m_munchkin->popModifier(choice);
+	const std::shared_ptr<Modifier> modifier = m_munchkin->popModifier(choice);
     if (modifier == nullptr)
     {
         //Give some assert/warning in debug to user that modifier is null so something is wrong
@@ -31,7 +31,7 @@ void Fight::applyModifier(int choice)
 
 void Fight::runawayFlow()
 {
-    Runaway* policy = m_monster->getRunawayPolicy();
+	const std::shared_ptr<MonsterPolicy> policy = m_monster->getRunawayPolicy();
     policy->apply(m_munchkin);
 
     m_result = FightResult::MonsterWon;
@@ -39,11 +39,9 @@ void Fight::runawayFlow()
 
 void Fight::victoryFlow()
 {
-    //#TODO: Implement at LEAST ONE victory policy similar to runaway policy
-    //Possible policies are:
-    //  Add new cards to hand
-    //  Generate new Outfit items???
-    //  Increase Level by 0,1,2
+    const std::shared_ptr<MonsterPolicy> policy = m_monster->getVictoryPolicy();
+    policy->apply(m_munchkin);
+
     m_munchkin->updateLevelBy(1);
 
     m_result = FightResult::MunchkinWon;
@@ -52,9 +50,9 @@ void Fight::victoryFlow()
 void Fight::calculateMunchkinPower()
 {
     m_MunchkinPower += m_munchkin->getLevel();
-    for (Item* item : m_munchkin->getItems())
+    for (auto& item : m_munchkin->getItems())
     {
-        m_MunchkinPower += item->getPower(m_monster->getTribe());
+        m_MunchkinPower += item->getPower(m_monster);
     }
 }
 

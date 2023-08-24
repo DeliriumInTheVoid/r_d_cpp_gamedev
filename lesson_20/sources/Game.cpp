@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include <iostream>
+#include <memory>
 #include <chrono> //for sleep delays
 #include <thread> //for sleep delays
 #include <time.h> //for rand generator init
@@ -10,10 +11,11 @@
 #include "ItemDeck.h"
 #include "Modifier.h"
 #include "Monster.h"
+#include "GameDataLoader.h"
 
 namespace UI
 {
-    void printDelayWithText(int count, std::string text)
+    void printDelayWithText(const int count, const std::string& text)
     {
         std::cout << text;
 
@@ -35,9 +37,10 @@ void printMonsterSelection()
     UI::printDelayWithText(5, "Selecting monster card");
 }
 
-void printMunchkinWon()
+void printMunchkinWon(const std::shared_ptr<Monster>& monster)
 {
-    std::cout << "CONGRATS: MunchkinG WON!\n";
+    std::cout << "CONGRATS: Munchkin WON!\n";
+    std::cout << monster->getRunawayPolicy()->getFullInfo() << std::endl;
 }
 
 void pressAnyKeyToContinue()
@@ -45,35 +48,20 @@ void pressAnyKeyToContinue()
     //Can use platform specific system functions to 
     //receive input directly from the keyboard without 
     //its output to console and approval with Enter
-
-    char anyKey;
-    std::cout << "Press any key to start a round...";
-    std::cin >> anyKey;
+    std::cout << "\nPress any key to start a round..." << std::flush;
+    std::cin.clear();
+    std::cin.get();
 }
 
-void printMunchkinLost(Monster* monster)
+void printMunchkinLost(const std::shared_ptr<Monster>& monster)
 {
     std::cout << "-------YOU'VE LOST to \"" << monster->getName() << "\"Monster!---------\n";
-    //#TODO: Print runaway policy monster dealt to Munchkin
-}
-
-std::string getTribeString(Tribe tribe)
-{
-    switch (tribe)
-    {
-    case Tribe::Human: return "HUMAN";
-    case Tribe::Undead: return "UNDEAD";
-    case Tribe::Zombie: return "ZOMBIE";
-    case Tribe::God: return "GOD";
-    case Tribe::Count:
-    default:
-        return "";
-    }
+    std::cout << monster->getRunawayPolicy()->getFullInfo() << std::endl;
 }
 
 void printIntro(Munchkin* munchkin)
 {
-    std::cout << "WELCOME TO TEXT-BASED MANCKIN GAME!!!\n";
+    std::cout << "WELCOME TO TEXT-BASED MUNCHKIN GAME!!!\n";
     std::cout << "Enter your Munchkin name: ";
     std::string name;
     std::cin >> name;
@@ -82,40 +70,40 @@ void printIntro(Munchkin* munchkin)
     UI::printTossing();
 }
 
-void printItems(Munchkin* munchkin)
+void printItems(const Munchkin* const munchkin)
 {
-    const std::vector<Item*>& items = munchkin->getItems();
+    const std::vector<std::shared_ptr<Item>>& items = munchkin->getItems();
     std::cout << "--------OUTFIT-----------\n";
-    for (Item* item : items)
+    for (auto& item : items)
     {
         std::cout << item->getFullInfo();
     }
 }
 
-void printModifiers(Munchkin* munchkin)
+void printModifiers(const Munchkin* munchkin)
 {
-    const std::vector<Modifier*> modifiers = munchkin->getModifiers();
+    const auto& modifiers = munchkin->getModifiers();
     std::cout << "\n---------HAND CARDS----------\n";
     int idx = 1;
-    for (Modifier* modifier : munchkin->getModifiers())
+    for (auto& modifier : modifiers)
     {
         std::cout << idx++ << ". " << modifier->getFullInfo() << std::endl;
     }
 }
 
-void printPlayerDeck(Munchkin* munchkin)
+void printPlayerDeck(const Munchkin* munchkin)
 {
     std::cout << std::endl << "\nMunchkin " << "\"" << munchkin->getName() << "\", level " << munchkin->getLevel() << std::endl;
     printItems(munchkin);
     printModifiers(munchkin);
 }
 
-void printMunchkinPower(Munchkin* munchkin, Fight* fight)
+void printMunchkinPower(const Munchkin* munchkin, const Fight* fight)
 {
     std::cout << "-----\"" << munchkin->getName() << "\" power: " << fight->getMunchkinPower() << "-------\n";
 }
 
-void printMonsterPower(Monster* monster, Fight* fight)
+void printMonsterPower(const std::shared_ptr<Monster>& monster, const Fight* fight)
 {
     std::cout << "-----\"" << monster->getName() << "\" power: " << fight->getMonsterPower() << "-------\n";
 }
@@ -159,7 +147,7 @@ int selectModifierFromHand(unsigned short handSize)
     return choice;
 }
 
-void printCurrentFightResult(int powerDifference)
+void printCurrentFightResult(const int powerDifference)
 {
     std::cout << "You are missing " << std::abs(powerDifference) << " power!\n\n";
 }
@@ -167,21 +155,26 @@ void printCurrentFightResult(int powerDifference)
 } //namespace UI
 
 
-void printMonsterInfo(Monster* monster)
+void printMonsterInfo(const std::shared_ptr<Monster>& monster)
 {
     std::cout << "\n--------Monster \"" << monster->getName() << "\"" << ", of " <<
-        UI::getTribeString(monster->getTribe()) << ", level " << monster->getLevel() << " --------" << std::endl << std::endl;
-    //#TODO: Print RUNAWAY POLICIES info similar to items print in printPlayerDeck()
+        getTribeString(monster->getTribe()) << ", level " << monster->getLevel() << " --------" << std::endl;
+    std::cout << "Runaway: " << monster->getRunawayPolicy()->getFullInfo() << std::endl;
+    std::cout << "Victory: " << monster->getVictoryPolicy()->getFullInfo() << std::endl << std::endl;
 }
 
 void Game::run()
 {
     constexpr uint WinningLevel = 10;
 
+    loadData();
+
     std::srand(static_cast<int>(std::time(0)));
     UI::printIntro(&m_munchkin);
     
     generateMunchkinInitialCards();
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     while (m_munchkin.getLevel() < WinningLevel)
     {
@@ -190,7 +183,7 @@ void Game::run()
         UI::pressAnyKeyToContinue();
         UI::printMonsterSelection();
 
-        Monster* monster = generateMonster();
+        std::shared_ptr<Monster> monster = generateMonster();
         printMonsterInfo(monster);
 
         Fight fight;
@@ -214,7 +207,7 @@ void Game::run()
             if (munchkinMonsterDifference > 0)
             {
                 fight.victoryFlow();
-                UI::printMunchkinWon();
+                UI::printMunchkinWon(monster);
                 UI::pressAnyKeyToContinue();
             }
             else
@@ -244,11 +237,20 @@ void Game::run()
 
 void Game::generateMunchkinInitialCards()
 {
-    m_munchkin.addItems(m_itemsDeck.generateItems());
+    m_munchkin.setItems(m_itemsDeck.generateItems());
     m_munchkin.addModifiers(m_modifiersDeck.generateModifiers());
 }
 
-Monster* Game::generateMonster()
+std::shared_ptr<Monster> Game::generateMonster()
 {
     return m_monstersDeck.generateMonster();
+}
+
+void Game::loadData()
+{
+    GameDataLoader loader;
+
+    loader.loadMonsterDeck(m_monstersDeck, m_itemsDeck, m_modifiersDeck);
+    loader.loadItemsDeck(m_itemsDeck);
+    loader.loadModifiersDeck(m_modifiersDeck);
 }

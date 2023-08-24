@@ -1,4 +1,7 @@
 #pragma once
+
+#include <memory>
+
 #include "Munchkin.h"
 #include "ItemDeck.h"
 #include "MonsterDeck.h"
@@ -12,7 +15,8 @@ public:
 
 private:
     void generateMunchkinInitialCards();
-    Monster* generateMonster();
+    std::shared_ptr<Monster> generateMonster();
+    void loadData();
 
 private:
     Munchkin m_munchkin;

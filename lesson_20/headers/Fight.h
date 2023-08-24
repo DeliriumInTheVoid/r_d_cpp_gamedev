@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 class Munchkin;
 class Monster;
 
@@ -14,7 +16,7 @@ class Fight
 {
 public:
     void setMunchkin(Munchkin* munchkin) { m_munchkin = munchkin; };
-    void setMonster(Monster* monster) { m_monster = monster; }
+    void setMonster(const std::shared_ptr<Monster>& monster) { m_monster = monster; }
 
     void start();
     bool getFinish() const { return m_result != FightResult::InProgress; }
@@ -38,7 +40,7 @@ private:
     int m_monsterPower = 0;
 
     Munchkin* m_munchkin = nullptr;
-    Monster* m_monster = nullptr;
+    std::shared_ptr<Monster> m_monster = nullptr;
 
     FightResult m_result = FightResult::InProgress;
 };

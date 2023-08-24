@@ -1,16 +1,20 @@
 #pragma once
+
+#include <memory>
 #include <vector>
+
 
 class Monster;
 
 class MonsterDeck
 {
 public:
-    MonsterDeck();
-    ~MonsterDeck();
-
-    Monster* generateMonster() const;
+    std::shared_ptr<Monster> generateMonster();
+    void addMonster(std::shared_ptr<Monster>&& monster);
 
 private:
-    std::vector<Monster*> m_monstersDatabase;
+    std::vector<std::shared_ptr<Monster>> m_monstersDatabase;
+
+private:
+    unsigned m_usedMonsters{ 0 };
 };

@@ -1,39 +1,44 @@
-#include "ModifierDeck.h"
+#include <memory>
 
+#include "ModifierDeck.h"
 #include "Modifier.h"
 
-ModifierDeck::ModifierDeck()
+void ModifierDeck::addModifier(const std::shared_ptr<Modifier>& modifier)
 {
-    m_modifiersDatabase = 
+    m_modifiersDatabase.push_back(modifier);
+}
+
+std::shared_ptr<Modifier> ModifierDeck::generateModifier()
+{
+    const size_t size = m_modifiersDatabase.size();
+    if (m_usedModifiers >= size - 1)
     {
-        {new SimpleModifier{3}},
-        {new SimpleModifier{3}},
-        {new SimpleModifier{2}},
-        {new SimpleModifier{2}},
-        {new SimpleModifier{2}},
-        {new SimpleModifier{4}},
-        {new SimpleModifier{1}},
-        {new SimpleModifier{1}},
-        {new SimpleModifier{1}},
-        {new DoubleMunchkinLevel{}},
-        {new DoubleMunchkinLevel{}},
-        {new HalvesMonsterLevel{Tribe::Undead}},
-        {new HalvesMonsterLevel{Tribe::God}}
-    };
+        m_usedModifiers = 0;
+    }
+
+    const unsigned index = std::rand() % (size - m_usedModifiers);
+    auto monster = m_modifiersDatabase[index];
+
+    ++m_usedModifiers;
+    std::swap(m_modifiersDatabase[index], m_modifiersDatabase[size - m_usedModifiers]);
+
+    return monster;
 }
 
-ModifierDeck::~ModifierDeck()
+std::vector<std::shared_ptr<Modifier>> ModifierDeck::generateModifiers()
 {
-    //TODO: Clear memory
-}
+    unsigned constexpr minModifiers = 3;
+    unsigned constexpr maxModifiers = 5;
 
-Modifier* ModifierDeck::generateModifier() const
-{
-    //#TODO: this call should return unique modifier every time
-    //either for as long as the same game is being played
-    //or unless ALL cards were generated from database to the game - in this case 
-    //make ALL cards available again
+    const unsigned modifierNum = minModifiers + std::rand() % (maxModifiers - minModifiers + 1);
 
-    unsigned int idx = std::rand() % m_modifiersDatabase.size();
-    return m_modifiersDatabase[idx];
+    std::vector<std::shared_ptr<Modifier>> generatedModifiers{};
+    generatedModifiers.reserve(modifierNum);
+
+    for (size_t i = 0; i < modifierNum; ++i)
+    {
+        generatedModifiers.push_back(generateModifier());
+    }
+
+    return generatedModifiers;
 }

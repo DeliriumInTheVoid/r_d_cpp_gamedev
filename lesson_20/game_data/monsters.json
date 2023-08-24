@@ -1,118 +1,175 @@
 {
   "monsters": [
     {
+      "name": "Shiva destructor",
+      "level": 20,
+      "tribe": "god",
+      "runaway":
+      {
+          "type": "level_downgrade_if",
+          "hero_level": 5,
+          "value": 2
+      },
+      "victory":
+      {
+        "type": "add_items",
+        "value": 1
+      }
+    },
+    {
       "name": "Balrog",
       "level": 8,
-      "hit points": 12,
-      "abilities": [ "Haste", "Fire Breath" ]
+      "tribe": "human",
+      "victory":
+      {
+        "type": "update_level",
+        "value": 1
+      }
     },
     {
       "name": "Dragon",
       "level": 10,
-      "hit points": 15,
-      "abilities": [ "Can't be killed by level 1 cards" ]
+      "tribe": "human",
+      "runaway":
+      {
+        "type": "remove_item",
+        "value": 4
+      },
+      "victory":
+      {
+        "type": "add_modifiers",
+        "value": 2
+      }
     },
     {
       "name": "Troll",
       "level": 6,
-      "hit points": 10,
-      "abilities": [ "Can regenerate" ]
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_items",
+        "value": 1
+      }
     },
     {
       "name": "Orc",
       "level": 4,
-      "hit points": 8,
-      "abilities": []
+      "tribe": "human"
     },
     {
       "name": "Goblin",
       "level": 2,
-      "hit points": 6,
-      "abilities": []
+      "tribe": "human"
     },
     {
       "name": "Mummy",
       "level": 5,
-      "hit points": 10,
-      "abilities": [ "Can't be attacked by ranged weapons" ]
+      "tribe": "human"
     },
     {
       "name": "Giant Spider",
       "level": 3,
-      "hit points": 8,
-      "abilities": [ "Can climb walls" ]
+      "tribe": "human"
     },
     {
       "name": "Vampire",
       "level": 7,
-      "hit points": 12,
-      "abilities": [ "Can drain the life force of other players" ]
+      "tribe": "undead",
+      "runaway": 
+      {
+        "type": "level_downgrade",
+        "value": 1
+      },
+      "victory":
+      {
+        "type": "add_modifiers",
+        "value": 2
+      }
     },
     {
       "name": "Werewolf",
       "level": 9,
-      "hit points": 15,
-      "abilities": [ "Can transform during the night" ]
+      "tribe": "human",
+      "runaway":
+      {
+        "type": "remove_modifier",
+        "value": 3
+      },
+      "victory":
+      {
+        "type": "update_level",
+        "value": 2
+      }
     },
     {
       "name": "Minotaur",
       "level": 8,
-      "hit points": 12,
-      "abilities": [ "Can't be attacked from behind" ]
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_items",
+        "value": 1
+      }
     },
     {
       "name": "Gnome",
       "level": 1,
-      "hit points": 4,
-      "abilities": [ "Can hide in small spaces" ]
+      "tribe": "human"
     },
     {
       "name": "Umber Hulk",
       "level": 5,
-      "hit points": 10,
-      "abilities": [ "Can cause madness" ]
+      "tribe": "human"
     },
     {
       "name": "Rust Monster",
       "level": 4,
-      "hit points": 8,
-      "abilities": [ "Can rust metal" ]
+      "tribe": "human"
     },
     {
       "name": "Kobold",
       "level": 2,
-      "hit points": 6,
-      "abilities": [ "Can be sacrificed to draw a card" ]
+      "tribe": "human"
     },
     {
       "name": "Shoggoth",
       "level": 7,
-      "hit points": 12,
-      "abilities": [ "Can split into two smaller Shoggoths" ]
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_modifiers",
+        "value": 1
+      }
     },
     {
       "name": "Yeti",
       "level": 8,
-      "hit points": 12,
-      "abilities": [ "Can freeze players" ]
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_modifiers",
+        "value": 2
+      }
     },
     {
       "name": "Cultist",
       "level": 6,
-      "hit points": 10,
-      "abilities": [ "Can summon other monsters" ]
+      "tribe": "human"
     },
     {
       "name": "Mind Flayer",
       "level": 9,
-      "hit points": 15,
-      "abilities": [ "Can control other players' minds" ]
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_items",
+        "value": 1
+      }
     },
     {
       "name": "Illithid",
       "level": 10,
-      "hit points": 15,
-      "abilities": [ "Can enslave other players" ]
+      "tribe": "human"
     }
   ]
 }

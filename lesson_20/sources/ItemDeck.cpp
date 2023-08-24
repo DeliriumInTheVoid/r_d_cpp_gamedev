@@ -1,28 +1,45 @@
+#include <memory>
+
 #include "ItemDeck.h"
 
-#include "Item.h"
+class Item;
 
-ItemDeck::ItemDeck()
+std::vector<std::shared_ptr<Item>> ItemDeck::generateItems()
 {
-    //TODO: Move item's database to file in format:
-    // type;name; params for the type
-    //For example:
-    //UndeadWeapon;"Holy Grenade";4		//should call UndeadWeapon("Holy Grenade", 4);
+    unsigned constexpr minItems = 4;
+    unsigned constexpr maxItems = 6;
 
-    //TODO: Setup more items of diferent types
-    m_itemsDataBase =
-    { new Weapon{"The Sword of DOOM", 5},
-    new UndeadWeapon{"Stinky knife", 2},
-    new UndeadWeapon{"Holy grenade", 4} };
+    const unsigned itemNum = minItems + std::rand() % (maxItems - minItems + 1);
+
+    std::vector<std::shared_ptr<Item>> generatedItems{};
+    generatedItems.reserve(itemNum);
+
+    for (size_t i = 0; i < itemNum; ++i)
+    {
+        generatedItems.push_back(generateItem());
+    }
+
+    return generatedItems;
 }
 
-ItemDeck::~ItemDeck()
+std::shared_ptr<Item> ItemDeck::generateItem()
 {
-    //TODO: FREE MEMORY
+    const size_t size = m_itemsDataBase.size();
+    if (m_usedItems >= size - 1)
+    {
+        m_usedItems = 0;
+    }
+
+    const unsigned index = std::rand() % (size - m_usedItems);
+    auto item = m_itemsDataBase[index];
+
+    ++m_usedItems;
+    std::swap(m_itemsDataBase[index], m_itemsDataBase[size - m_usedItems]);
+
+    return item;
 }
 
-std::vector<Item*> ItemDeck::generateItems() const
+void ItemDeck::addItem(std::shared_ptr<Item>&& item)
 {
-    //TODO: PICK AT RANDOM SEVERAL ITEMS FROM DATABASE AS A PLAYER HAND
-    return m_itemsDataBase;
+    m_itemsDataBase.push_back(item);
 }

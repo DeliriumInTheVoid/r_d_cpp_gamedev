@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Munchkin.h"
 #include "Item.h"
 #include "Modifier.h"
@@ -10,35 +12,80 @@ void Munchkin::updateLevelBy(int levels)
     }
     else
     {
-	    m_level += levels; 
+        m_level += levels;
     }
-
 }
 
-void Munchkin::addItem(Item* item)
+void Munchkin::addItem(const std::shared_ptr<Item>& item)
 {
     m_items.push_back(item);
 }
 
-void Munchkin::addItems(const std::vector<Item*>& items)
+void Munchkin::setItems(const std::vector<std::shared_ptr<Item>>& items)
 {
     m_items = items;
 }
 
-const std::vector<Item*>& Munchkin::getItems() const
+const std::vector<std::shared_ptr<Item>>& Munchkin::getItems() const
 {
     return m_items;
 }
 
-Modifier* Munchkin::popModifier(int idx)
+void Munchkin::removeModifierFromHand(unsigned modifiersNum)
+{
+    if (m_modifiers.empty())
+    {
+        return;
+    }
+
+    if (m_modifiers.size() > modifiersNum)
+    {
+	    while (modifiersNum--)
+	    {
+		    const unsigned index = std::rand() % m_modifiers.size();
+            m_modifiers.erase(m_modifiers.begin() + index);
+	    }
+    }
+    else
+    {
+        m_modifiers.clear();
+    }
+}
+
+void Munchkin::removeItemEquipped(unsigned itemsNum)
+{
+    if (m_items.empty())
+    {
+        return;
+    }
+
+    if (m_items.size() > itemsNum)
+    {
+        while (itemsNum--)
+        {
+            const unsigned index = std::rand() % m_items.size();
+            m_items.erase(m_items.begin() + index);
+        }
+    }
+    else
+    {
+        m_items.clear();
+    }
+}
+
+std::shared_ptr<Modifier> Munchkin::popModifier(const unsigned idx)
 {
     if (idx >= m_modifiers.size() || idx < 0)
     {
         return nullptr;
     }
 
-    Modifier* modifier = m_modifiers[idx];
+    std::shared_ptr<Modifier> modifier = m_modifiers[idx];
     m_modifiers.erase(m_modifiers.begin() + idx);
     return modifier;
+}
 
+void Munchkin::addModifier(const std::shared_ptr<Modifier>& modifier)
+{
+    m_modifiers.push_back(modifier);
 }

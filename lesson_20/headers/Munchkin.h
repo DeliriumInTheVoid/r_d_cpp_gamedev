@@ -1,4 +1,6 @@
 #pragma once
+
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -19,22 +21,22 @@ public:
     int getLevel() const { return m_level; }
     void updateLevelBy(int levels);
 
-    void addItem(Item* item);
-    void addItems(const std::vector<Item*>& items);
-    const std::vector<Item*>& getItems() const;
+    void addItem(const std::shared_ptr<Item>& item);
+    void setItems(const std::vector<std::shared_ptr<Item>>& items);
+    const std::vector<std::shared_ptr<Item>>& getItems() const;
     
-    //TODO: Implement, by index or by pointer or at random
-    void removeModifierFromHand() {}
-    void removeItemEquipped() {}
+    void removeModifierFromHand(unsigned modifiersNum);
+    void removeItemEquipped(unsigned itemsNum);
 
-    Modifier* popModifier(int idx);
-    const std::vector<Modifier*>& getModifiers() const { return m_modifiers; }
-    void addModifiers(const std::vector<Modifier*>& modifiers) { m_modifiers = modifiers; }
+    std::shared_ptr<Modifier> popModifier(unsigned idx);
+    const std::vector<std::shared_ptr<Modifier>>& getModifiers() const { return m_modifiers; }
+    void addModifiers(const std::vector<std::shared_ptr<Modifier>>& modifiers) { m_modifiers = modifiers; }
+    void addModifier(const std::shared_ptr<Modifier>& modifier);
 
 private:
     uint m_level = 1;
     std::string m_name;
 
-    std::vector<Item*> m_items;
-    std::vector<Modifier*> m_modifiers;
+    std::vector<std::shared_ptr<Item>> m_items;
+    std::vector<std::shared_ptr<Modifier>> m_modifiers;
 };

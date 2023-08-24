@@ -1,0 +1,82 @@
+{
+  "modifiers": [
+    {
+      "name": "The Golden Idol",
+      "type": "power",
+      "action": "add",
+      "value": 5,
+      "target": "munchkin"
+    },
+    {
+      "name": "The Potion of Heroism",
+      "type": "power",
+      "action": "add",
+      "value": 4,
+      "target": "munchkin"
+    },
+    {
+      "name": "The Fireball",
+      "type": "power",
+      "action": "add",
+      "value": 3,
+      "target": "munchkin"
+    },
+    {
+      "name": "The Magic Missile",
+      "type": "power",
+      "action": "add",
+      "value": 2,
+      "target": "munchkin"
+    },
+    {
+      "name": "The Bard's Lute",
+      "type": "power",
+      "action": "add",
+      "value": 1,
+      "target": "munchkin"
+    },
+    {
+      "name": "The Level Up!",
+      "type": "hero_level_permanent",
+      "action": "add",
+      "value": 1
+    },
+    {
+      "name": "The Leprechaun's Lucky Charm",
+      "type": "level",
+      "action": "multiply",
+      "value": 2,
+      "target": "munchkin"
+    },
+    {
+      "name": "The Prist Lucky Charm",
+      "type": "level_by_tribe",
+      "action": "multiply",
+      "value": 2,
+      "tribe": "undead",
+      "target": "munchkin"
+    },
+    {
+      "name": "The Curse of Shrinking",
+      "type": "level",
+      "action": "divide",
+      "value": 2,
+      "target": "monster"
+    },
+    {
+      "name": "The Curse of Holly Shrinking",
+      "type": "level_by_tribe",
+      "action": "divide",
+      "value": 2,
+      "tribe": "undead",
+      "target": "monster"
+    },
+    {
+      "name": "The Cursed Weapon",
+      "type": "level",
+      "action": "subtract",
+      "value": 2,
+      "target": "monster"
+    }
+  ]
+}
