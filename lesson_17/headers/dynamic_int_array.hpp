@@ -41,6 +41,6 @@ private:
 
 private:
     std::size_t size_;
-    std::size_t max_size_;
+    std::size_t capacity_;
     int* dynamic_buffer_{ nullptr };
 };

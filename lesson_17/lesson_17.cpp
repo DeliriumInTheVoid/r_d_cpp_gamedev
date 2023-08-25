@@ -59,34 +59,38 @@ void print_menu()
 
 void dynamic_int_array_use_cases()
 {
+    std::cout << "Create array with size:" << std::endl;
     dynamic_int_array arr{ 5 };
-
-    arr.push_back(1);
-    arr.push_back(2);
-    arr.push_back(3);
-    arr.push_back(4);
-    arr.push_back(5);
-    std::cout << "Create array:" << std::endl;
     print_arr(arr);
     std::cout << std::endl;
 
+    std::cout << "Resize array:" << std::endl;
+    arr[0] = 1;
+    arr[1] = 2;
+    arr.set_size(10);
+    print_arr(arr);
+    std::cout << std::endl;
+    arr.set_size(5);
+    print_arr(arr);
+    std::cout << std::endl;
+
+    std::cout << "Extend array:" << std::endl;
     arr.push_back(6);
     arr.push_back(7);
     arr.push_back(8);
-    std::cout << "Extend array:" << std::endl;
     print_arr(arr);
     std::cout << std::endl;
 
+    std::cout << "Copy constructor for array:" << std::endl;
     dynamic_int_array arr_copy{ arr };
     arr.push_back(9);
-    std::cout << "Copy constructor for array:" << std::endl;
     print_arr(arr_copy);
     std::cout << std::endl;
 
+    std::cout << "Copy assignment for array:" << std::endl;
     dynamic_int_array arr_copy_assignment{};
     arr_copy_assignment.push_back(100);
     arr_copy_assignment = arr;
-    std::cout << "Copy assignment for array:" << std::endl;
     print_arr(arr_copy_assignment);
     std::cout << std::endl;
 

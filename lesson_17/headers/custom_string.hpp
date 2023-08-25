@@ -36,7 +36,7 @@ StringCustom& StringCustom::operator=(const char* c_str)
     }
     else
     {
-        const std::size_t size = strlen(c_str);
+        const std::size_t size = strlen(c_str) + 1;
         m_str = new char[size];
 
         for (std::size_t i = 0; i < size; i++) // for (int(?) i = 0; i < size; i++)
@@ -64,7 +64,7 @@ int* allocateArray(int size)
 
 void clearArray(int* numbers)
 {
-    delete numbers;
+    delete[] numbers;
 }
 
 int** allocateArrayOfArrays(int rows, int columns)

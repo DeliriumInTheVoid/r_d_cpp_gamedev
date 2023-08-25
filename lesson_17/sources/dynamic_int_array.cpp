@@ -10,17 +10,17 @@ dynamic_int_array::dynamic_int_array() : dynamic_int_array{ 0 }
 }
 
 //c-tor with size
-dynamic_int_array::dynamic_int_array(const std::size_t size) : size_{ 0 }
+dynamic_int_array::dynamic_int_array(const std::size_t size) : size_{ size }
 {
-    max_size_ = size > initial_buffer_size ? size : initial_buffer_size;
-    dynamic_buffer_ = new int[max_size_];
+    capacity_ = size > initial_buffer_size ? size : initial_buffer_size;
+    dynamic_buffer_ = new int[capacity_]{0};
 }
 
 //copy c-tor
 dynamic_int_array::dynamic_int_array(const dynamic_int_array& other) :
-    size_{ other.size_ }, max_size_{ other.max_size_ }
+    size_{ other.size_ }, capacity_{ other.capacity_ }
 {
-    dynamic_buffer_ = new int[max_size_];
+    dynamic_buffer_ = new int[capacity_];
     std::copy_n(other.dynamic_buffer_, size_, dynamic_buffer_);
 }
 
@@ -39,10 +39,10 @@ dynamic_int_array& dynamic_int_array::operator=(const dynamic_int_array& other)
         delete[] dynamic_buffer_;
         dynamic_buffer_ = nullptr;
 
-        max_size_ = other.max_size_;
+        capacity_ = other.capacity_;
         size_ = other.size_;
 
-        dynamic_buffer_ = new int[max_size_];
+        dynamic_buffer_ = new int[capacity_];
         std::copy_n(other.dynamic_buffer_, size_, dynamic_buffer_);
     }
 
@@ -62,12 +62,20 @@ int& dynamic_int_array::operator[](const std::size_t index)
 //delete previous memory, create new inner array with updated size
 void dynamic_int_array::set_size(const std::size_t new_size)
 {
-    delete[] dynamic_buffer_;
-    dynamic_buffer_ = nullptr;
+    capacity_ = new_size > initial_buffer_size ? new_size : initial_buffer_size;
 
-    size_ = 0;
-    max_size_ = new_size > initial_buffer_size ? new_size : initial_buffer_size;
-    dynamic_buffer_ = new int[max_size_];
+    int* tmp_buffer = new int[capacity_];
+
+    memset(tmp_buffer, 0, sizeof(int) * capacity_);
+
+    const size_t copy_size = size_ <= capacity_ ? size_ : capacity_;
+    std::copy_n(dynamic_buffer_, copy_size, tmp_buffer);
+
+    size_ = new_size;
+
+    delete[] dynamic_buffer_;
+
+    dynamic_buffer_ = tmp_buffer;
 }
 
 std::size_t dynamic_int_array::get_size() const
@@ -78,7 +86,10 @@ std::size_t dynamic_int_array::get_size() const
 //Clear internal memory, set size to 0
 void dynamic_int_array::clear()
 {
-    set_size(0);
+    delete[] dynamic_buffer_;
+    dynamic_buffer_ = nullptr;
+    size_ = 0;
+    capacity_ = 0;
 }
 
 
@@ -88,10 +99,10 @@ void dynamic_int_array::clear()
 // update size
 void dynamic_int_array::push_back(const int element)
 {
-    if (size_ >= max_size_)
+    if (size_ >= capacity_)
     {
-        max_size_ = size_ + extend_step_size;
-        int* extended_buffer = new int[max_size_];
+        capacity_ = size_ + extend_step_size;
+        int* extended_buffer = new int[capacity_];
 
         std::copy_n(dynamic_buffer_, size_, extended_buffer);
 
