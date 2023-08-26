@@ -1,0 +1,5 @@
+* text=auto
+
+*.[pP][dD][bB] filter=lfs diff=lfs merge=lfs -text
+*.[d][lL][lL] filter=lfs diff=lfs merge=lfs -text
+*.[lL][iI][bB] filter=lfs diff=lfs merge=lfs -text
