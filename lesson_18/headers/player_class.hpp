@@ -34,7 +34,7 @@ public:
         {
             20,
             weapon_type::melee_edged,
-            diapason_value{10, 40}
+            range{10, 40}
         })
     {
     }
@@ -55,7 +55,7 @@ public:
         {
             20,
             weapon_type::ranged_shotgun,
-            diapason_value{10, 40}
+            range{10, 40}
         })
     {
     }
@@ -71,7 +71,7 @@ public:
         {
             35,
             weapon_type::ranged_machine_gun,
-            diapason_value{5, 30}
+            range{5, 30}
         })
     {
     }
@@ -84,7 +84,7 @@ public:
         {
             53,
             weapon_type::ranged_sniper_rifle,
-            diapason_value{15, 20}
+            range{15, 20}
         })
     {
     }
@@ -97,7 +97,7 @@ public:
         {
             25,
             weapon_type::ranged_pistol,
-            diapason_value{5, 10}
+            range{5, 10}
         })
     {
     }

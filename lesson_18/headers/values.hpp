@@ -1,9 +1,9 @@
 #pragma once
 
-class diapason_value
+class range
 {
 public:
-    diapason_value(const int min_value, const int max_value);
+    range(const int min_value, const int max_value);
 
 public:
     int generate_value() const;
@@ -14,18 +14,18 @@ private:
 };
 
 
-class chanced_diapason_value
+class chanced_range
 {
 public:
-    chanced_diapason_value(const int chance, diapason_value&& value);
+    chanced_range(const int chance, range&& value);
 
 public:
     int get_value(const int chance_increase = 0) const;
 
 private:
     int chance_;
-    diapason_value value_;
-    diapason_value random_value_{ 0, 100 };
+    range value_;
+    range random_value_{ 0, 100 };
 };
 
 class chanced_value
@@ -39,5 +39,5 @@ public:
 private:
     int chance_;
     float value_;
-    diapason_value random_value_{ 0, 100 };
+    range random_value_{ 0, 100 };
 };

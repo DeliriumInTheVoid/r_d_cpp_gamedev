@@ -9,7 +9,7 @@
 class ranged_weapon : public weapon
 {
 public:
-    ranged_weapon(const chanced_diapason_value&& damage, const weapon_type type): weapon(std::move(damage), type)
+    ranged_weapon(const chanced_range&& damage, const weapon_type type): weapon(std::move(damage), type)
     {
     }
 
@@ -26,7 +26,7 @@ protected:
 class sniper_rifle final : public ranged_weapon
 {
 public:
-    sniper_rifle() : ranged_weapon(chanced_diapason_value{45, {30, 45}}, weapon_type::ranged_sniper_rifle)
+    sniper_rifle() : ranged_weapon(chanced_range{45, {30, 45}}, weapon_type::ranged_sniper_rifle)
     {
     }
 
@@ -37,7 +37,7 @@ protected:
 class pistol final : public ranged_weapon
 {
 public:
-    pistol() : ranged_weapon(chanced_diapason_value{ 70, {15, 25} }, weapon_type::ranged_pistol)
+    pistol() : ranged_weapon(chanced_range{ 70, {15, 25} }, weapon_type::ranged_pistol)
     {
     }
 
@@ -48,7 +48,7 @@ protected:
 class shotgun final : public ranged_weapon
 {
 public:
-    shotgun() : ranged_weapon(chanced_diapason_value{ 75, {10, 30} }, weapon_type::ranged_shotgun)
+    shotgun() : ranged_weapon(chanced_range{ 75, {10, 30} }, weapon_type::ranged_shotgun)
     {
     }
 
@@ -60,7 +60,7 @@ protected:
 class assault_rifle final : public ranged_weapon
 {
 public:
-    assault_rifle() : ranged_weapon(chanced_diapason_value{ 62, {15, 20} }, weapon_type::ranged_machine_gun)
+    assault_rifle() : ranged_weapon(chanced_range{ 62, {15, 20} }, weapon_type::ranged_machine_gun)
     {
     }
 

@@ -17,7 +17,7 @@ enum weapon_type : unsigned
 class weapon_mastery
 {
 public:
-    weapon_mastery(const int chance, const weapon_type type, const diapason_value&& damage)
+    weapon_mastery(const int chance, const weapon_type type, const range&& damage)
         : chance_{ chance }, type_{ type }, damage_ { damage }
     {
     }
@@ -29,13 +29,13 @@ public:
 private:
     int chance_;
     weapon_type type_;
-    diapason_value damage_;
+    range damage_;
 };
 
 class weapon
 {
 public:
-    weapon(const chanced_diapason_value&& damage, const weapon_type type) : type_{ type }, damage_{ damage }
+    weapon(const chanced_range&& damage, const weapon_type type) : type_{ type }, damage_{ damage }
     {
     }
 
@@ -52,6 +52,6 @@ protected:
 
 private:
     weapon_type type_;
-    chanced_diapason_value damage_;
+    chanced_range damage_;
     const weapon_mastery* mastery_{ nullptr };
 };

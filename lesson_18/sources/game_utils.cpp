@@ -80,7 +80,7 @@ player_class* get_player_class()
 {
     unsigned player_class_type{ 0 };
 
-    std::cout << "Pick a weapon for your player: \n\n";
+    std::cout << "Pick a class for your player: \n\n";
     std::cout << "1. Default Class \n";
     std::cout << "2. Defender Class \n";
     std::cout << "3. Assault Class \n";

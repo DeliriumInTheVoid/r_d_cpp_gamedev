@@ -4,7 +4,7 @@
 #include "values.hpp"
 
 
-diapason_value::diapason_value(const int min_value, const int max_value)
+range::range(const int min_value, const int max_value)
 {
     if (max_value < min_value)
     {
@@ -16,12 +16,12 @@ diapason_value::diapason_value(const int min_value, const int max_value)
     max_ = max_value;
 }
 
-int diapason_value::generate_value() const
+int range::generate_value() const
 {
     return min_ + std::rand() % (max_ - min_ + 1);
 }
 
-chanced_diapason_value::chanced_diapason_value(const int chance, diapason_value&& value) : chance_{ chance }, value_{ value }
+chanced_range::chanced_range(const int chance, range&& value) : chance_{ chance }, value_{ value }
 {
     if (chance < 0 || chance > 100)
     {
@@ -29,7 +29,7 @@ chanced_diapason_value::chanced_diapason_value(const int chance, diapason_value&
     }
 }
 
-int chanced_diapason_value::get_value(const int chance_increase) const
+int chanced_range::get_value(const int chance_increase) const
 {
     return random_value_.generate_value() <= chance_ + chance_increase ? value_.generate_value() : 0;
 }
