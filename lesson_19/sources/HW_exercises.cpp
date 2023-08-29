@@ -180,13 +180,13 @@ int main()
     Derived1 d1;
     d1.print();
 
-    Base* bp = dynamic_cast<Base*>(&d1);
+    Base* bp = &d1;
     bp->print();
 
     // down casting issue
     //Derived2* dp2 = dynamic_cast<Derived2*>(bp);
     Derived2* d2 = new Derived2();
-    Base* dp2 = dynamic_cast<Derived2*>(d2);
+    Base* dp2 = d2;
     dp2->print();
 
 
