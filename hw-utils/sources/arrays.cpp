@@ -14,7 +14,7 @@ void utl::array_random_fill(int arr[], const int size, const int min, const int 
     }
 }
 
-void utl::print_arr(int arr[], const int size)
+void utl::print_arr(const int arr[], const int size)
 {
     for (int i = 0; i < size; ++i)
     {
