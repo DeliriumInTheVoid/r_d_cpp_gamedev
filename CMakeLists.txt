@@ -8,6 +8,10 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
+endif()
+
 add_subdirectory ("hw-utils")
 
 add_subdirectory ("lesson_01")
@@ -29,3 +33,4 @@ add_subdirectory ("lesson_17")
 add_subdirectory ("lesson_18")
 add_subdirectory ("lesson_19")
 add_subdirectory ("lesson_21")
+add_subdirectory ("lesson_23")
