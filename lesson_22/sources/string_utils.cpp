@@ -33,12 +33,15 @@ std::string most_occurred_word(const std::string& line)
 
     while (iss >> word)
     {
-        const unsigned current_count = ++word_count[word];
+        ++word_count[word];
+    }
 
-        if(current_count > max_count)
+    for (const auto& [key_word, count] : word_count)
+    {
+        if (count > max_count)
         {
-            max_count = current_count;
-            most_common_word = word;
+            max_count = count;
+            most_common_word = key_word;
         }
     }
 
