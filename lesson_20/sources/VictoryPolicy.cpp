@@ -36,5 +36,5 @@ void VictoryPolicy_AddLevel::apply(Munchkin* munchkin)
 
 std::string VictoryPolicy_AddLevel::getFullInfo()
 {
-    return "your level will be updates by " + std::to_string(m_levelsNum);
+    return "your level will be updated by " + std::to_string(m_levelsNum);
 }
