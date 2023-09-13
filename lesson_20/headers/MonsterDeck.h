@@ -9,7 +9,7 @@ class Monster;
 class MonsterDeck
 {
 public:
-    std::shared_ptr<Monster> generateMonster();
+    std::weak_ptr<Monster> generateMonster();
     void addMonster(std::shared_ptr<Monster>&& monster);
 
 private:

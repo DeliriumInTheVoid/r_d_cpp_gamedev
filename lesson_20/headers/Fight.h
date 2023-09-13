@@ -15,8 +15,8 @@ enum class FightResult
 class Fight
 {
 public:
-    void setMunchkin(Munchkin* munchkin) { m_munchkin = munchkin; };
-    void setMonster(const std::shared_ptr<Monster>& monster) { m_monster = monster; }
+    void setMunchkin(Munchkin* munchkin) { m_munchkin = munchkin; }
+    void setMonster(const std::weak_ptr<Monster>& monster) { m_monster = monster; }
 
     void start();
     bool getFinish() const { return m_result != FightResult::InProgress; }
@@ -40,7 +40,7 @@ private:
     int m_monsterPower = 0;
 
     Munchkin* m_munchkin = nullptr;
-    std::shared_ptr<Monster> m_monster = nullptr;
+    std::weak_ptr<Monster> m_monster{};
 
     FightResult m_result = FightResult::InProgress;
 };

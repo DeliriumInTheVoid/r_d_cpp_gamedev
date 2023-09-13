@@ -2,7 +2,7 @@
 
 class Monster;
 
-std::shared_ptr<Monster> MonsterDeck::generateMonster()
+std::weak_ptr<Monster> MonsterDeck::generateMonster()
 {
     const size_t size = m_monstersDatabase.size();
     if (m_usedMonsters >= size - 1)

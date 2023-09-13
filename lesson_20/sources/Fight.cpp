@@ -31,7 +31,7 @@ void Fight::applyModifier(int choice)
 
 void Fight::runawayFlow()
 {
-	const std::shared_ptr<MonsterPolicy> policy = m_monster->getRunawayPolicy();
+	const std::shared_ptr<MonsterPolicy> policy = m_monster.lock()->getRunawayPolicy();
     policy->apply(m_munchkin);
 
     m_result = FightResult::MonsterWon;
@@ -39,7 +39,7 @@ void Fight::runawayFlow()
 
 void Fight::victoryFlow()
 {
-    const std::shared_ptr<MonsterPolicy> policy = m_monster->getVictoryPolicy();
+    const std::shared_ptr<MonsterPolicy> policy = m_monster.lock()->getVictoryPolicy();
     policy->apply(m_munchkin);
 
     m_munchkin->updateLevelBy(1);
@@ -58,5 +58,5 @@ void Fight::calculateMunchkinPower()
 
 void Fight::calculateMonsterPower()
 {
-    m_monsterPower = m_monster->getLevel();
+    m_monsterPower = static_cast<int>(m_monster.lock()->getLevel());
 }

@@ -17,7 +17,7 @@ public:
     virtual ~Modifier() = default;
 public:
     std::string getName() const { return m_name; }
-    void apply(Munchkin* munchkin, const std::shared_ptr<Monster>& monster)
+    void apply(const Munchkin* munchkin, const std::weak_ptr<Monster>& monster)
     {
         if (m_target == ModifierTarget::Unknown)
         {
@@ -37,7 +37,7 @@ public:
     virtual std::string getFullInfo() const { return ""; }
 
 protected:
-    virtual void calculateModifierChange(const Munchkin* const munchkin, const std::shared_ptr<Monster>& monster, int& modifierChange) = 0;
+    virtual void calculateModifierChange(const Munchkin* const munchkin, const std::weak_ptr<Monster>& monster, int& modifierChange) = 0;
 
 protected:
     std::string m_name;
@@ -60,7 +60,7 @@ public:
     virtual ~Modifier_Power() override = default;
 
 public:
-    virtual void calculateModifierChange(const Munchkin* const munchkin, const std::shared_ptr<Monster>& monster, int& modifierChange) override
+    virtual void calculateModifierChange(const Munchkin* const munchkin, const std::weak_ptr<Monster>& monster, int& modifierChange) override
     {
         switch (m_action)
         {
@@ -91,9 +91,9 @@ public:
 
     virtual ~Modifier_Level() override = default;
 public:
-    virtual void calculateModifierChange(const Munchkin* const munchkin, const std::shared_ptr<Monster>& monster, int& modifierChange) override
+    virtual void calculateModifierChange(const Munchkin* const munchkin, const std::weak_ptr<Monster>& monster, int& modifierChange) override
     {
-        const unsigned targetLevel = m_target == ModifierTarget::Munchkin ? munchkin->getLevel() : monster->getLevel();
+        const unsigned targetLevel = m_target == ModifierTarget::Munchkin ? munchkin->getLevel() : monster.lock()->getLevel();
 
         switch (m_action)
         {
@@ -130,9 +130,9 @@ public:
 
     virtual ~Modifier_LevelByTribe() override = default;
 public:
-    virtual void calculateModifierChange(const Munchkin* const munchkin, const std::shared_ptr<Monster>& monster, int& modifierChange) override
+    virtual void calculateModifierChange(const Munchkin* const munchkin, const std::weak_ptr<Monster>& monster, int& modifierChange) override
     {
-        if (monster->getTribe() != m_tribe)
+        if (monster.lock()->getTribe() != m_tribe)
         {
             return;
         }

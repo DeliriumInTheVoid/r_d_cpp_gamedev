@@ -13,7 +13,7 @@ public:
     virtual ~WeaponSkill() = default;
 
 public:
-    virtual int getPower(const int weaponPower, const std::shared_ptr<Monster>& monster) const = 0;
+    virtual int getPower(const int weaponPower, const std::weak_ptr<Monster>& monster) const = 0;
     virtual std::string getFullInfo() const = 0;
 };
 
@@ -23,7 +23,7 @@ public:
     virtual ~WeaponSkillNull() override = default;
 
 public:
-    virtual int getPower(const int weaponPower, const std::shared_ptr<Monster>& monster) const override
+    virtual int getPower(const int weaponPower, const std::weak_ptr<Monster>& monster) const override
     {
         return weaponPower;
     }
@@ -42,9 +42,10 @@ public:
     virtual ~WeaponKillMonster() override = default;
 
 public:
-    virtual int getPower(const int weaponPower, const std::shared_ptr<Monster>& monster) const override
+    virtual int getPower(const int weaponPower, const std::weak_ptr<Monster>& monster) const override
     {
-        return monster->getName() == m_monsterName ? monster->getLevel() : weaponPower;
+        const auto monster_sh = monster.lock();
+        return monster_sh->getName() == m_monsterName ? monster_sh->getLevel() : weaponPower;
     }
 
     virtual std::string getFullInfo() const override
@@ -68,7 +69,7 @@ public:
 public:
     using enum AbilityAction;
 
-    virtual int getPower(const int weaponPower, const std::shared_ptr<Monster>& monster) const override
+    virtual int getPower(const int weaponPower, const std::weak_ptr<Monster>& monster) const override
     {
         switch (m_action)
         {
@@ -106,9 +107,9 @@ public:
 public:
     using enum AbilityAction;
 
-    virtual int getPower(const int weaponPower, const std::shared_ptr<Monster>& monster) const override
+    virtual int getPower(const int weaponPower, const std::weak_ptr<Monster>& monster) const override
     {
-        if (monster->getTribe() == m_tribe)
+        if (monster.lock()->getTribe() == m_tribe)
         {
             return WeaponSkillPowerBooster::getPower(weaponPower, monster);
         }
@@ -133,7 +134,7 @@ public:
     virtual int getBasePower() const = 0;
     virtual std::string getFullInfo() const = 0;
 
-    virtual int getPower(const std::shared_ptr<Monster>& monster) const { return getBasePower(); }
+    virtual int getPower(const std::weak_ptr<Monster>& monster) const { return getBasePower(); }
 
     void setName(const std::string& name) { m_name = name; }
     const std::string getName() const { return m_name; }
@@ -160,7 +161,7 @@ public:
     virtual ~Weapon() override = default;
 
 public:
-    virtual int getPower(const std::shared_ptr<Monster>& monster) const override
+    virtual int getPower(const std::weak_ptr<Monster>& monster) const override
     {
         return m_skill->getPower(getBasePower(), monster);
     }

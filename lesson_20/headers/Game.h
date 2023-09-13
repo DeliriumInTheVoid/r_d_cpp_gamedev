@@ -15,7 +15,7 @@ public:
 
 private:
     void generateMunchkinInitialCards();
-    std::shared_ptr<Monster> generateMonster();
+    std::weak_ptr<Monster> generateMonster();
     void loadData();
 
 private:

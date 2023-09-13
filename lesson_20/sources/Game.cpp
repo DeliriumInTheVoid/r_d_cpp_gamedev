@@ -37,10 +37,10 @@ void printMonsterSelection()
     UI::printDelayWithText(5, "Selecting monster card");
 }
 
-void printMunchkinWon(const std::shared_ptr<Monster>& monster)
+void printMunchkinWon(const std::weak_ptr<Monster>& monster)
 {
     std::cout << "CONGRATS: Munchkin WON!\n";
-    std::cout << monster->getRunawayPolicy()->getFullInfo() << std::endl;
+    std::cout << monster.lock()->getRunawayPolicy()->getFullInfo() << std::endl;
 }
 
 void pressAnyKeyToContinue()
@@ -53,10 +53,12 @@ void pressAnyKeyToContinue()
     std::cin.get();
 }
 
-void printMunchkinLost(const std::shared_ptr<Monster>& monster)
+void printMunchkinLost(const std::weak_ptr<Monster>& monster)
 {
-    std::cout << "-------YOU'VE LOST to \"" << monster->getName() << "\"Monster!---------\n";
-    std::cout << monster->getRunawayPolicy()->getFullInfo() << std::endl;
+	const auto monster_sh = monster.lock();
+
+    std::cout << "-------YOU'VE LOST to \"" << monster_sh->getName() << "\"Monster!---------\n";
+    std::cout << monster_sh->getRunawayPolicy()->getFullInfo() << std::endl;
 }
 
 void printIntro(Munchkin* munchkin)
@@ -103,9 +105,9 @@ void printMunchkinPower(const Munchkin* munchkin, const Fight* fight)
     std::cout << "-----\"" << munchkin->getName() << "\" power: " << fight->getMunchkinPower() << "-------\n";
 }
 
-void printMonsterPower(const std::shared_ptr<Monster>& monster, const Fight* fight)
+void printMonsterPower(const std::weak_ptr<Monster>& monster, const Fight* fight)
 {
-    std::cout << "-----\"" << monster->getName() << "\" power: " << fight->getMonsterPower() << "-------\n";
+    std::cout << "-----\"" << monster.lock()->getName() << "\" power: " << fight->getMonsterPower() << "-------\n";
 }
 
 enum class UserInput
@@ -155,12 +157,13 @@ void printCurrentFightResult(const int powerDifference)
 } //namespace UI
 
 
-void printMonsterInfo(const std::shared_ptr<Monster>& monster)
+void printMonsterInfo(const std::weak_ptr<Monster>& monster)
 {
-    std::cout << "\n--------Monster \"" << monster->getName() << "\"" << ", of " <<
-        getTribeString(monster->getTribe()) << ", level " << monster->getLevel() << " --------" << std::endl;
-    std::cout << "Runaway: " << monster->getRunawayPolicy()->getFullInfo() << std::endl;
-    std::cout << "Victory: " << monster->getVictoryPolicy()->getFullInfo() << std::endl << std::endl;
+	const auto monster_sh = monster.lock();
+    std::cout << "\n--------Monster \"" << monster_sh->getName() << "\"" << ", of " <<
+        getTribeString(monster_sh->getTribe()) << ", level " << monster_sh->getLevel() << " --------" << std::endl;
+    std::cout << "Runaway: " << monster_sh->getRunawayPolicy()->getFullInfo() << std::endl;
+    std::cout << "Victory: " << monster_sh->getVictoryPolicy()->getFullInfo() << std::endl << std::endl;
 }
 
 void Game::run()
@@ -183,7 +186,7 @@ void Game::run()
         UI::pressAnyKeyToContinue();
         UI::printMonsterSelection();
 
-        std::shared_ptr<Monster> monster = generateMonster();
+        std::weak_ptr monster = generateMonster();
         printMonsterInfo(monster);
 
         Fight fight;
@@ -241,7 +244,7 @@ void Game::generateMunchkinInitialCards()
     m_munchkin.addModifiers(m_modifiersDeck.generateModifiers());
 }
 
-std::shared_ptr<Monster> Game::generateMonster()
+std::weak_ptr<Monster> Game::generateMonster()
 {
     return m_monstersDeck.generateMonster();
 }
