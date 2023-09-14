@@ -73,6 +73,11 @@ void dynamic_array_use_cases()
     utl::print_arr(arr, arr.get_size());
     std::cout << std::endl;
 
+    std::cout << "reserve array:" << std::endl;
+    arr.reserve(20);
+    utl::print_arr(arr, arr.get_size());
+    std::cout << std::endl;
+
     std::cout << "Extend array:" << std::endl;
     arr.push_back(6);
     arr.push_back(7);
@@ -96,6 +101,11 @@ void dynamic_array_use_cases()
     std::cout << "clear() array and push_back number:" << std::endl;
     arr.clear();
     arr.push_back(0);
+    utl::print_arr(arr, arr.get_size());
+    std::cout << std::endl;
+
+    std::cout << "pop_back number:" << std::endl;
+    arr.pop_back();
     utl::print_arr(arr, arr.get_size());
     std::cout << std::endl;
 }

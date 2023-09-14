@@ -40,6 +40,8 @@ public:
     // update size
     void push_back(T element);
 
+    void pop_back();
+
     T& back() const;
 
     void reserve(const std::size_t reserved_space);
@@ -47,6 +49,11 @@ public:
     std::size_t get_capacity() const;
 
     void shrink_to_fit();
+
+private:
+    void extend_buffer(std::size_t capacity, bool update_size = false, std::size_t new_size = 0);
+    void check_size_guard() const;
+    void check_index_guard(std::size_t index) const;
 
 private:
     static constexpr std::size_t extend_step_size = 10;
@@ -112,11 +119,7 @@ dynamic_array<T>& dynamic_array<T>::operator=(const dynamic_array<T>& other)
 template <class T>
 T& dynamic_array<T>::operator[](const std::size_t index)
 {
-    if (index >= size_)
-    {
-        std::cerr << "dynamic_array: error. operator[] index: " << index << " is out of range!";
-    }
-
+    check_index_guard(index);
     return dynamic_buffer_[index];
 }
 
@@ -148,20 +151,10 @@ bool dynamic_array<T>::operator==(const dynamic_array<T>& other) const
 template <class T>
 void dynamic_array<T>::set_size(const std::size_t new_size)
 {
-    capacity_ = new_size > initial_buffer_size ? new_size : initial_buffer_size;
-
-    T* tmp_buffer = new T[capacity_];
-
-    memset(tmp_buffer, T{}, sizeof(T) * capacity_);
-
-    const size_t copy_size = size_ <= capacity_ ? size_ : capacity_;
-    std::copy_n(dynamic_buffer_, copy_size, tmp_buffer);
-
-    size_ = new_size;
-
-    delete[] dynamic_buffer_;
-
-    dynamic_buffer_ = tmp_buffer;
+    extend_buffer(
+        new_size > initial_buffer_size ? new_size : initial_buffer_size,
+        true,
+        new_size);
 }
 
 template <class T>
@@ -190,13 +183,7 @@ void dynamic_array<T>::push_back(const T element)
 {
     if (size_ >= capacity_)
     {
-        capacity_ = size_ + extend_step_size;
-        T* extended_buffer = new T[capacity_];
-
-        std::copy_n(dynamic_buffer_, size_, extended_buffer);
-
-        delete[] dynamic_buffer_;
-        dynamic_buffer_ = extended_buffer;
+        extend_buffer(size_ + extend_step_size);
     }
 
     dynamic_buffer_[size_] = element;
@@ -205,14 +192,19 @@ void dynamic_array<T>::push_back(const T element)
 }
 
 template <class T>
+void dynamic_array<T>::pop_back()
+{
+    check_size_guard();
+    dynamic_buffer_[size_] = T{};
+    --size_;
+}
+
+template <class T>
 T& dynamic_array<T>::back() const
 {
-    if (size_ <= 0)
-    {
-        std::cerr << "Error! dynamic_array::back(): array is empty" << std::endl;
-    }
+    check_size_guard();
 
-    return this[size_ - 1];
+    return dynamic_buffer_[size_ - 1];
 }
 
 template <class T>
@@ -223,7 +215,7 @@ void dynamic_array<T>::reserve(const std::size_t reserved_space)
         return;
     }
 
-    set_size(reserved_space);
+    extend_buffer(reserved_space);
 }
 
 template <class T>
@@ -238,5 +230,42 @@ void dynamic_array<T>::shrink_to_fit()
     if (capacity_ > size_)
     {
         set_size(size_);
+    }
+}
+
+template <class T>
+void dynamic_array<T>::extend_buffer(std::size_t capacity, bool update_size, std::size_t new_size)
+{
+    capacity_ = capacity;
+    T* extended_buffer = new T[capacity_];
+
+	size_t copy_size = size_;
+    if (update_size)
+    {
+        memset(extended_buffer, T{}, sizeof(T) * capacity_);
+        copy_size = size_ <= capacity_ ? size_ : capacity_;
+        size_ = new_size;
+    }
+    std::copy_n(dynamic_buffer_, copy_size, extended_buffer);
+
+    delete[] dynamic_buffer_;
+    dynamic_buffer_ = extended_buffer;
+}
+
+template <class T>
+void dynamic_array<T>::check_size_guard() const
+{
+    if (size_ <= 0)
+    {
+        std::cerr << "Error! dynamic_array::back(): array is empty" << std::endl;
+    }
+}
+
+template <class T>
+void dynamic_array<T>::check_index_guard(std::size_t index) const
+{
+    if (index >= size_)
+    {
+        std::cerr << "dynamic_array: error. operator[] index: " << index << " is out of range!";
     }
 }
