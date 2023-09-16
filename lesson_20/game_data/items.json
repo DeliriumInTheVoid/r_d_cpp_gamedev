@@ -1,0 +1,138 @@
+{
+  "items": [
+    {
+      "name": "Holy Sword",
+      "level": 6,
+      "power": 5,
+      "skill":
+      {
+        "type": "kill_booster",
+        "monster_name": "Zombie"
+      }
+    },
+    {
+      "name": "The Sword of DOOM",
+      "level": 4,
+      "power": 5
+    },
+    {
+      "name": "Stinky knife",
+      "level": 2,
+      "power": 2,
+      "skill":
+      {
+        "type": "tribe_power_booster",
+        "action": "multiply",
+        "tribe": "undead",
+        "value": 1.5
+      }
+    },
+    {
+      "name": "Holy grenade",
+      "level": 5,
+      "power": 4,
+      "skill": 
+      {
+        "type": "tribe_power_booster",
+        "action": "multiply",
+        "tribe": "undead",
+        "value": 2
+      }
+    },
+    {
+      "name": "Rusty Sword",
+      "level": 0,
+      "power": 1
+    },
+    {
+      "name": "Leather Armor",
+      "level": 0,
+      "power": 0
+    },
+    {
+      "name": "Cursed Ring",
+      "level": 0,
+      "power": 0
+    },
+    {
+      "name": "Magic Missile",
+      "level": 1,
+      "power": 2
+    },
+    {
+      "name": "Plate Mail",
+      "level": 1,
+      "power": 0
+    },
+    {
+      "name": "Sword of Awesomeness",
+      "level": 2,
+      "power": 3
+    },
+    {
+      "name": "Cloak of Protection",
+      "level": 2,
+      "power": 0
+    },
+    {
+      "name": "Wand of Wonder",
+      "level": 3,
+      "power": 0
+    },
+    {
+      "name": "Amulet of Yendor",
+      "level": 10,
+      "power": 0
+    },
+    {
+      "name": "Chain Mail",
+      "level": 3,
+      "power": 0
+    },
+    {
+      "name": "Battle Axe",
+      "level": 3,
+      "power": 3
+    },
+    {
+      "name": "Shield",
+      "level": 2,
+      "power": 0
+    },
+    {
+      "name": "Bow and Arrow",
+      "level": 1,
+      "power": 1
+    },
+    {
+      "name": "Helmet",
+      "level": 1,
+      "power": 0
+    },
+    {
+      "name": "Boots of Speed",
+      "level": 2,
+      "power": 0
+    },
+    {
+      "name": "Ring of Invisibility",
+      "level": 3,
+      "power": 0
+    },
+    {
+      "name": "Magic Armor",
+      "level": 5,
+      "power": 0
+    },
+    {
+      "name": "Sword of Sharpness",
+      "level": 5,
+      "power": 4
+    },
+    {
+      "name": "Plate Armor of Ultimate Defense",
+      "level": 10,
+      "power": 0
+    }
+  ]
+}

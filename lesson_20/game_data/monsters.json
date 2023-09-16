@@ -1,0 +1,175 @@
+{
+  "monsters": [
+    {
+      "name": "Shiva destructor",
+      "level": 20,
+      "tribe": "god",
+      "runaway":
+      {
+          "type": "level_downgrade_if",
+          "hero_level": 5,
+          "value": 2
+      },
+      "victory":
+      {
+        "type": "add_items",
+        "value": 1
+      }
+    },
+    {
+      "name": "Balrog",
+      "level": 8,
+      "tribe": "human",
+      "victory":
+      {
+        "type": "update_level",
+        "value": 1
+      }
+    },
+    {
+      "name": "Dragon",
+      "level": 10,
+      "tribe": "human",
+      "runaway":
+      {
+        "type": "remove_item",
+        "value": 4
+      },
+      "victory":
+      {
+        "type": "add_modifiers",
+        "value": 2
+      }
+    },
+    {
+      "name": "Troll",
+      "level": 6,
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_items",
+        "value": 1
+      }
+    },
+    {
+      "name": "Orc",
+      "level": 4,
+      "tribe": "human"
+    },
+    {
+      "name": "Goblin",
+      "level": 2,
+      "tribe": "human"
+    },
+    {
+      "name": "Mummy",
+      "level": 5,
+      "tribe": "human"
+    },
+    {
+      "name": "Giant Spider",
+      "level": 3,
+      "tribe": "human"
+    },
+    {
+      "name": "Vampire",
+      "level": 7,
+      "tribe": "undead",
+      "runaway": 
+      {
+        "type": "level_downgrade",
+        "value": 1
+      },
+      "victory":
+      {
+        "type": "add_modifiers",
+        "value": 2
+      }
+    },
+    {
+      "name": "Werewolf",
+      "level": 9,
+      "tribe": "human",
+      "runaway":
+      {
+        "type": "remove_modifier",
+        "value": 3
+      },
+      "victory":
+      {
+        "type": "update_level",
+        "value": 2
+      }
+    },
+    {
+      "name": "Minotaur",
+      "level": 8,
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_items",
+        "value": 1
+      }
+    },
+    {
+      "name": "Gnome",
+      "level": 1,
+      "tribe": "human"
+    },
+    {
+      "name": "Umber Hulk",
+      "level": 5,
+      "tribe": "human"
+    },
+    {
+      "name": "Rust Monster",
+      "level": 4,
+      "tribe": "human"
+    },
+    {
+      "name": "Kobold",
+      "level": 2,
+      "tribe": "human"
+    },
+    {
+      "name": "Shoggoth",
+      "level": 7,
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_modifiers",
+        "value": 1
+      }
+    },
+    {
+      "name": "Yeti",
+      "level": 8,
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_modifiers",
+        "value": 2
+      }
+    },
+    {
+      "name": "Cultist",
+      "level": 6,
+      "tribe": "human"
+    },
+    {
+      "name": "Mind Flayer",
+      "level": 9,
+      "tribe": "human",
+      "victory":
+      {
+        "type": "add_items",
+        "value": 1
+      }
+    },
+    {
+      "name": "Illithid",
+      "level": 10,
+      "tribe": "human"
+    }
+  ]
+}
