@@ -38,3 +38,5 @@ add_subdirectory ("lesson_22")
 add_subdirectory ("lesson_23")
 add_subdirectory ("lesson_26")
 add_subdirectory ("lesson_27")
+
+add_subdirectory ("battle_tanks/client")
