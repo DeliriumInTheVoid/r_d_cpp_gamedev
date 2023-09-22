@@ -4,7 +4,7 @@
 
 float SFMLDebugDraw::pixels_per_meter = 30.f;
 
-SFMLDebugDraw::SFMLDebugDraw(sf::RenderWindow& window, float pixels_per_meters) : m_window(&window)
+SFMLDebugDraw::SFMLDebugDraw(const std::shared_ptr<sf::RenderTarget>& window, float pixels_per_meters) : m_window(window)
 {
 	pixels_per_meter = pixels_per_meters;
 }

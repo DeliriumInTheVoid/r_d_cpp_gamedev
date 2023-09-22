@@ -1,16 +1,23 @@
 #pragma once
 
+#include <memory>
+
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Config.hpp>
+
 #include <Box2D/Box2D.h>
 
 class SFMLDebugDraw : public b2Draw
 {
 private:
-	sf::RenderWindow* m_window;
+	std::shared_ptr<sf::RenderTarget> m_window;
 	//float m_pixels_per_meter;
 	static float pixels_per_meter;
 
 public:
-	SFMLDebugDraw(sf::RenderWindow& window, float pixels_per_meters);
+	SFMLDebugDraw(const std::shared_ptr<sf::RenderTarget>& window, float pixels_per_meters);
 
 	/// Convert Box2D's OpenGL style color definition[0-1] to SFML's color definition[0-255], with optional alpha byte[Default - opaque]
 	static sf::Color GLColorToSFML(const b2Color& color, sf::Uint8 alpha = 255)
