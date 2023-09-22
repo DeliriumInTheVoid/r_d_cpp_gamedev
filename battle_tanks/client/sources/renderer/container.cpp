@@ -1,5 +1,5 @@
-#include "container.hpp"
-#include "render_object.hpp"
+#include "renderer/container.hpp"
+#include "renderer/render_object.hpp"
 
 void container::add_child(const std::shared_ptr<render_object>& child)
 {

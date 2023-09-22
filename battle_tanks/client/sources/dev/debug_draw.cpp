@@ -1,6 +1,6 @@
 #include "SFML/Graphics.hpp"
 
-#include "debug_draw.hpp"
+#include "dev/debug_draw.hpp"
 
 float SFMLDebugDraw::pixels_per_meter = 30.f;
 

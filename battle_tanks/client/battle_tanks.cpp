@@ -11,9 +11,9 @@
 
 #include "boost/di.hpp"
 
-#include "debug_draw.hpp"
-#include "render_object.hpp"
-#include "container.hpp"
+#include "dev/debug_draw.hpp"
+#include "renderer/render_object.hpp"
+#include "renderer/container.hpp"
 
 typedef long long unsigned uuid;
 static uuid current_uuid{ 1 };

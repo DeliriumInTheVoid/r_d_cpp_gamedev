@@ -1,6 +1,6 @@
-#include "render_object.hpp"
+#include "renderer/render_object.hpp"
+#include "renderer/container.hpp"
 
-#include "container.hpp"
 
 void render_object::free()
 {
