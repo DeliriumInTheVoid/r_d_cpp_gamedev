@@ -2,7 +2,7 @@
 #include "renderer/container.hpp"
 
 
-void render_object::free()
+void bt::render_object::free()
 {
     if (parent_ != nullptr)
     {

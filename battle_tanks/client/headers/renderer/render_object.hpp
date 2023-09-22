@@ -5,30 +5,33 @@
 #include <SFML/Graphics/Transform.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
-class container;
-
-class render_object : public sf::Transformable
+namespace bt
 {
-    friend container;
-public:
-    virtual ~render_object() override = default;
+    class container;
 
-public:
-    virtual void free();
+    class render_object : public sf::Transformable
+    {
+        friend bt::container;
+    public:
+        virtual ~render_object() override = default;
 
-    //void set_parent(const std::shared_ptr<container>& parent)
-    //{
-    //    parent_ = parent;
-    //}
+    public:
+        virtual void free();
 
-    //std::shared_ptr<container> get_parent() const
-    //{
-    //    return parent_;
-    //}
+        //void set_parent(const std::shared_ptr<container>& parent)
+        //{
+        //    parent_ = parent;
+        //}
 
-protected:
-    virtual void draw(const std::shared_ptr<sf::RenderTarget>& render_target, const sf::Transform& parent_transform) const = 0;
+        //std::shared_ptr<container> get_parent() const
+        //{
+        //    return parent_;
+        //}
 
-private:
-    container* parent_{ nullptr };
-};
+    protected:
+        virtual void draw(const std::shared_ptr<sf::RenderTarget>& render_target, const sf::Transform& parent_transform) const = 0;
+
+    private:
+        bt::container* parent_{ nullptr };
+    };
+}
