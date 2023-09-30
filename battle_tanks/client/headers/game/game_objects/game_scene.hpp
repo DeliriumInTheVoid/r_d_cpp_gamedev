@@ -18,7 +18,7 @@ namespace bt
 
         void add_game_object(const std::shared_ptr<bt::game_object>& game_object)
         {
-            game_objects_.insert({ game_object->get_id(), game_object });
+            game_objects_.emplace(game_object->get_id(), game_object);
         }
 
         void remove_game_object(const std::shared_ptr<bt::game_object>& game_object)

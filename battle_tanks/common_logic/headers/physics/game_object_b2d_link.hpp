@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/entity/game_object_type.hpp"
+#include <utils/uuid.hpp>
 
 namespace bt
 {

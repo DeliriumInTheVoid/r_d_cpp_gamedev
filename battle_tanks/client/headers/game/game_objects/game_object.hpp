@@ -2,10 +2,11 @@
 
 #include <memory>
 
-#include <Box2D/b2_body.h>
-
+#include "game/entity/game_object_entity.hpp"
+#include "game/game_objects/game_object_frame_restorer.hpp"
 #include "utils/uuid.hpp"
 #include "renderer/render_object.hpp"
+
 
 namespace bt
 {
@@ -19,7 +20,9 @@ namespace bt
         virtual ~game_object() = default;
 
     public:
-        virtual void initialize() = 0;
+        virtual void restore_from_frame(const bt::game_object_frame_restorer& restorer) = 0;
+        virtual void create_render_object() = 0;
+        virtual void create_game_object_entity() = 0;
         virtual void update(float delta_time) = 0;
         virtual void free() = 0;
 
@@ -34,15 +37,16 @@ namespace bt
             return render_object_;
         }
 
-        b2Body* get_physics_body() const
+        void initialize()
         {
-            return physics_body_;
+            create_game_object_entity();
+            create_render_object();
         }
 
     protected:
-        std::shared_ptr<bt::render_object> render_object_{ nullptr };
-        b2Body* physics_body_{ nullptr };
         bt::uuid id_;
+        std::shared_ptr<bt::render_object> render_object_{ nullptr };
+        std::unique_ptr<game_object_entity> game_object_entity_{ nullptr };
     };
 
 }

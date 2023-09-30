@@ -1,8 +1,9 @@
 #pragma once
+#include <cstdint>
 
 namespace bt
 {
-    typedef long long unsigned uuid;
+    typedef std::uint32_t uuid;
 
     uuid generate_uuid();
 

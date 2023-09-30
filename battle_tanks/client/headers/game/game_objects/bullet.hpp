@@ -5,7 +5,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <box2d/b2_body.h>
 
-#include "game/entity/game_object.hpp"
+#include "game/game_objects/game_object.hpp"
 #include "renderer/textures.hpp"
 #include "utils/uuid.hpp"
 
@@ -16,12 +16,11 @@ namespace bt
     class bullet : public bt::game_object
     {
     public:
-        bullet(const bt::uuid id, float velocity, const std::shared_ptr<bt::texture_render_data>& render_data, b2Body* body);
+        bullet(const bt::uuid id, float velocity, const std::shared_ptr<bt::texture_holder>& render_data, b2Body* body);
 
         virtual ~bullet() override = default;
 
     public:
-        virtual void initialize() override;
 
         virtual void update(float delta_time) override;
 
@@ -32,6 +31,6 @@ namespace bt
         sf::Vector2f position_{};
         sf::Vector2u field_size_{};
 
-        std::shared_ptr<bt::texture_render_data> render_data_{ nullptr };
+        std::shared_ptr<bt::texture_holder> render_data_{ nullptr };
     };
 }

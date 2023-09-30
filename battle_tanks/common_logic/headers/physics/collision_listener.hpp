@@ -2,6 +2,8 @@
 
 #include <functional>
 
+#include <box2d/box2d.h>
+
 #include "physics/game_object_b2d_link.hpp"
 
 namespace bt
