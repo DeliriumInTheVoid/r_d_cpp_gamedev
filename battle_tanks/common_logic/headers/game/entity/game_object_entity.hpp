@@ -37,20 +37,20 @@ namespace bt
         std::shared_ptr<game_object_frame> get_frame() const
         {
             auto object_frame = create_frame();
-            set_frame_data(object_frame);
+            fill_frame_data(object_frame);
             return object_frame;
         }
 
         void write_to_frame(const std::shared_ptr<game_object_frame>& object_frame) const
         {
-            set_frame_data(object_frame);
+            fill_frame_data(object_frame);
         }
 
     protected:
         [[nodiscard]]
         virtual std::shared_ptr<game_object_frame> create_frame() const = 0;
 
-        virtual void set_frame_data(const std::shared_ptr<game_object_frame>& object_frame) const
+        virtual void fill_frame_data(const std::shared_ptr<game_object_frame>& object_frame) const
         {
             object_frame->game_object_id = id_;
             object_frame->game_object_type = type_;

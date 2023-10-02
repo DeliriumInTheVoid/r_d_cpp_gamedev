@@ -3,7 +3,6 @@
 #include <memory>
 
 #include <SFML/System/Vector2.hpp>
-#include <box2d/b2_body.h>
 
 #include "game/entity/player_game_object_entity.hpp"
 #include "game/game_objects/game_object.hpp"
@@ -16,10 +15,11 @@ namespace bt
     class player_game_object : public bt::game_object
     {
     public:
-        player_game_object(const bt::uuid id,
+        player_game_object(
+            const bt::uuid id,
             const std::shared_ptr<bt::textures_pack>& textures_pack,
-            const physics_body_factory& ph_body_factory)
-            : game_object(id), textures_pack_{ textures_pack }, ph_body_factory_(ph_body_factory)
+            const std::weak_ptr<physics_body_factory>& ph_body_factory)
+            : game_object(id), textures_pack_{ textures_pack }, ph_body_factory_{ ph_body_factory }
         {
         }
 
@@ -31,6 +31,23 @@ namespace bt
             game_object_entity_->restore_frame(restorer);
         }
 
+        virtual void update(float delta_time) override
+        {
+            const auto frame = std::make_shared<player_game_object_frame>();
+            game_object_entity_->write_to_frame(frame);
+            const auto& ph_body_pos = frame->position;
+            const float ph_body_rot = frame->rotation;
+
+            render_object_->setPosition({ph_body_pos.x * physics_consts::pixels_per_meters, ph_body_pos.y * physics_consts::pixels_per_meters});
+            render_object_->setRotation(std::fmod(bt::rad_to_deg(ph_body_rot), 360.0f));
+
+            if (!turret_render_object_.expired())
+            {
+	            turret_render_object_.lock()->setRotation(frame->turret_rotation);
+            }
+        }
+
+    protected:
         virtual void create_render_object() override
         {
             auto tank_texture = textures_pack_->get_texture(texture_id::tank_base);
@@ -55,30 +72,9 @@ namespace bt
 
         virtual void create_game_object_entity() override
         {
-            auto player_entity = std::make_unique<bt::player_game_object_entity>(get_id(), ph_body_factory_);
+            auto player_entity = std::make_unique<bt::player_game_object_entity>(id_, ph_body_factory_);
             player_entity->create_phy_body();
             game_object_entity_ = std::move(player_entity);
-        }
-
-        virtual void update(float delta_time) override
-        {
-            const auto frame = std::make_shared<player_game_object_frame>();
-            game_object_entity_->write_to_frame(frame);
-            const auto& ph_body_pos = frame->position;
-            const float ph_body_rot = frame->rotation;
-
-            render_object_->setPosition({ph_body_pos.x * physics_consts::pixels_per_meters, ph_body_pos.y * physics_consts::pixels_per_meters});
-            render_object_->setRotation(std::fmod(bt::rad_to_deg(ph_body_rot), 360.0f));
-
-            if (!turret_render_object_.expired())
-            {
-	            turret_render_object_.lock()->setRotation(frame->turret_rotation);
-            }
-        }
-
-        virtual void free() override
-        {
-            
         }
 
     private:
@@ -87,7 +83,7 @@ namespace bt
         sf::Vector2u field_size_{};
 
         std::shared_ptr<bt::textures_pack> textures_pack_;
-        const physics_body_factory& ph_body_factory_;
+        std::weak_ptr<physics_body_factory> ph_body_factory_;
 
         std::weak_ptr<bt::sprite> turret_render_object_{};
     };

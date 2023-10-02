@@ -8,6 +8,8 @@ namespace bt
 	namespace game_entity_consts
 	{
 		static sf::Vector2f tank_size{33.0f, 54.0f};
+		static sf::Vector2f bullet_size{ 6.0f, 24.0f };
+		static float turret_length = 8.0f;//meters
 	}
 
 	namespace physics_consts

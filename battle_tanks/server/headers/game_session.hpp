@@ -6,8 +6,9 @@
 #include "box2d/b2_world.h"
 
 #include "game/entity/game_object_entity.hpp"
+#include "game/entity/bullet_game_object_entity.hpp"
 #include "game/entity/player_game_object_entity.hpp"
-#include "game/game_objects/game_object_frame_restorer_packet.hpp"
+#include "game/entity/game_map_entity.hpp"
 
 #include "network/commands.hpp"
 #include "physics/collision_listener.hpp"
@@ -18,7 +19,7 @@ enum class game_session_type : sf::Uint32
     unknown = 0,
     pvp_1x1,
     team_2x2,
-    deathmatch_4,
+    death_match_4,
 };
 
 enum class game_session_state : unsigned
@@ -54,6 +55,8 @@ public:
             });
 
         state_ = game_session_state::waiting_for_players;
+
+        physics_body_factory_ = std::make_shared<bt::physics_body_factory>(&physics_world_);
     }
 
     ~game_session()
@@ -109,6 +112,40 @@ public:
         }
     }
 
+    void player_turret_fire(const sf::Uint32 player_id, const player_action action)
+    {
+        std::lock_guard lock{ mutex_game_loop_ };
+        if (const auto controller = get_player_action_controller(player_id))
+        {
+            if (controller->set_fire_action(action))
+            {
+                const auto& player_controller = players_action_controllers_.at(player_id);
+
+                if (player_controller.expired())
+                {
+                    return;
+                }
+                const auto controller_ptr = player_controller.lock();
+
+                auto bullet_id = bt::generate_uuid();
+                auto bullet = std::make_unique<bt::bullet_game_object_entity>(bullet_id, physics_body_factory_);
+
+                bullet->create_physics_body(
+                    controller_ptr->get_position(),
+                    controller_ptr->get_absolute_turret_rotation(),
+                    50.0f // m/s
+                );
+
+                auto shot_command = std::make_unique<player_shoot>();
+                shot_command->player_id = player_id;
+                shot_command->game_object = *bullet->get_frame();
+
+                game_objects_.emplace(bullet_id, std::move(bullet));
+                commands_out_->push_back({ players_ids_,std::move(shot_command) });
+            }
+        }
+    }
+
 private:
     void update();
 
@@ -144,7 +181,9 @@ private:
 
     b2World physics_world_ = b2World{ b2Vec2{ 0.0f, 0.0f } };
     bt::collision_listener contact_listener_{};
-    bt::physics_body_factory physics_body_factory_{ &physics_world_ };
+    std::shared_ptr<bt::physics_body_factory> physics_body_factory_{ nullptr };
+
+    std::unique_ptr<game_map_entity> game_map_{ nullptr };
 
     std::unordered_set<bt::uuid> objects_to_delete_{};
     std::unordered_map<sf::Uint32, std::unique_ptr<bt::game_object_entity>> game_objects_{};
@@ -165,6 +204,11 @@ void game_session::update()
             current_count_down_time -= clock.restart().asMilliseconds();
             if (current_count_down_time <= 0)
             {
+                std::weak_ptr<bt::physics_body_factory> physics_body_factory_weak = physics_body_factory_;
+                auto size = b2Vec2 { 102.4f, 76.8f };
+                game_map_ = std::make_unique<game_map_entity>(0, size, physics_body_factory_weak);
+                game_map_->build_map();
+
                 state_ = game_session_state::game_play_progress;
 
                 auto command = std::make_unique<session_started_command>();
@@ -228,26 +272,16 @@ bool game_session::join_player(sf::Uint32 player_id)
     std::lock_guard lock{ mutex_game_loop_ };
 
     auto player_entity = std::make_unique<bt::player_game_object_entity>(player_id, physics_body_factory_);
-    player_entity->create_phy_body();
-
 
     //TODO:: new player state configuration
-    const auto packet = std::make_shared<sf::Packet>();
-    player_game_object_frame frame{};
     if (players_ids_.empty())
     {
-        frame.position = { 10.0f, 10.f };
+        player_entity->create_physics_body({ 10.0f, 10.0f });
     }
     else
     {
-        frame.position = { 40.0f, 40.f };
+        player_entity->create_physics_body({ 40.0f, 40.0f });
     }
-    frame.write_to_packet(*packet);
-    sf::Uint32 id;
-    *packet >> id;
-    const bt::game_object_frame_restorer_packet restorer{ packet };
-    player_entity->restore_frame(restorer);
-    /////////////////////////////////////////
 
     players_action_controllers_.emplace(player_id, player_entity->get_action_controller());
     game_objects_.emplace(player_id, std::move(player_entity));
@@ -258,7 +292,7 @@ bool game_session::join_player(sf::Uint32 player_id)
     joined_command->player_id = player_id;
     commands_out_->push_back({ players_ids_, std::move(joined_command) });
 
-    if (players_ids_.size() == 2)
+    if (players_ids_.size() == 1)
     {
         state_ = game_session_state::starting;
         thread_game_loop_ = std::thread{ &game_session::update, this };

@@ -1,8 +1,11 @@
 #pragma once
 
 #include <numbers>
+#include <chrono>
 
 #include "network/player_actions.hpp"
+#include "utils/math.hpp"
+
 
 namespace bt
 {
@@ -86,9 +89,21 @@ namespace bt
             turret_rotation_ = rotation;
         }
 
-        bool turret_fire()
+        bool set_fire_action(const player_action action)
         {
-            
+            if (action == player_action::turret_stop_fire)
+            {
+                return false;
+            }
+
+            const auto current_time = std::chrono::high_resolution_clock::now();
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(current_time - turret_last_fire_time_).count() < 1000)
+            {
+                return false;
+            }
+
+            turret_last_fire_time_ = current_time;
+            return true;
         }
 
         void update(const float delta_time)
@@ -104,6 +119,15 @@ namespace bt
             }
         }
 
+        b2Vec2 get_position() const
+        {
+            return phy_body_->GetPosition();
+        }
+
+        float get_absolute_turret_rotation() const
+        {
+            return phy_body_->GetAngle() + bt::deg_to_rad(turret_rotation_);
+        }
 
     private:
         player_action move_action_{player_action::stop_move};
@@ -112,6 +136,7 @@ namespace bt
         player_action turret_fire_{player_action::turret_stop_fire};
 
         float turret_rotation_{0.0f};
+        std::chrono::time_point<std::chrono::steady_clock> turret_last_fire_time_{};
 
         b2Body* phy_body_{ nullptr };
     };

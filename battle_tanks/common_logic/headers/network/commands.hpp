@@ -35,6 +35,8 @@ enum class command_id_server : sf::Uint32
     update_game_frame = 10007,
 
     delete_game_object = 10008,
+
+    player_shoot = 10009,
 };
 
 template <class T>
@@ -51,6 +53,11 @@ struct simple_command
     virtual void write_to_packet(sf::Packet& packet) const
     {
         packet << static_cast<sf::Uint32>(command_id);
+    }
+
+    virtual void read_from_packet(sf::Packet& packet)
+    {
+        packet >> reinterpret_cast<sf::Uint32&>(command_id);
     }
 };
 
@@ -99,7 +106,7 @@ struct player_action_command : client_command
 };
 
 
-////// TODO:: move from common to SERVER
+////// TODO:: move to server_commands
 struct server_command : simple_command<command_id_server>
 {
     explicit server_command(const command_id_server id) : simple_command{ id }
@@ -262,6 +269,31 @@ struct session_started_command : server_command
         {
             game_object->write_to_packet(packet);
         }
+    }
+};
+
+struct player_shoot final : server_command
+{
+    player_shoot() : server_command(command_id_server::player_shoot)
+    {
+    }
+    virtual ~player_shoot() override = default;
+
+    sf::Uint32 player_id{};
+    game_object_frame game_object{};
+
+    void write_to_packet(sf::Packet& packet) const override
+    {
+        simple_command::write_to_packet(packet);
+        packet << player_id;
+		game_object.write_to_packet(packet);
+    }
+
+    virtual void read_from_packet(sf::Packet& packet) override
+    {
+        //simple_command::read_from_packet(packet);
+        packet >> player_id;
+		game_object.read_from_packet(packet);
     }
 };
 

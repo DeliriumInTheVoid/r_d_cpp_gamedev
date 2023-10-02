@@ -40,6 +40,8 @@ namespace bt
                         objects_to_delete_.insert(game_object_b.id);
                     }
                 });
+
+            physics_body_factory_ = std::make_shared<physics_body_factory>(&physics_world_);
         }
 
         ~sfml_game()
@@ -64,7 +66,7 @@ namespace bt
             return render_scene_;
         }
 
-        const bt::physics_body_factory& get_physics_body_factory() const
+        std::weak_ptr<bt::physics_body_factory> get_physics_body_factory() const
         {
             return physics_body_factory_;
         }
@@ -108,7 +110,7 @@ namespace bt
         std::unique_ptr<bt::game_scene> game_world_{ nullptr };
         std::unique_ptr<bt::render_scene> render_scene_{ nullptr };
         b2World physics_world_{ b2Vec2{ 0.0f, 0.0f } };
-        bt::physics_body_factory physics_body_factory_{ &physics_world_ };
+        std::shared_ptr<bt::physics_body_factory> physics_body_factory_{ nullptr};
         SFMLDebugDraw* debug_draw_{ nullptr };
         std::unique_ptr<bt::collision_listener> contact_listener_{ nullptr };
 

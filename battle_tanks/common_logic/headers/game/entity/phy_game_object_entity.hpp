@@ -11,16 +11,16 @@ namespace bt
     class phy_game_object_entity : public bt::game_object_entity
     {
     public:
-        phy_game_object_entity(const sf::Uint32 id, const bt::game_object_type type, const physics_body_factory& ph_body_factory)
+        phy_game_object_entity(const sf::Uint32 id, const bt::game_object_type type, const std::weak_ptr<physics_body_factory>& ph_body_factory)
             : bt::game_object_entity(id, type), ph_body_factory_{ ph_body_factory }
         {
         }
 
         virtual ~phy_game_object_entity() override
         {
-            if (phy_body_ != nullptr)
+            if (phy_body_ != nullptr && !ph_body_factory_.expired())
             {
-                ph_body_factory_.destroy_body(phy_body_);
+                ph_body_factory_.lock()->destroy_body(phy_body_);
                 phy_body_ = nullptr;
             }
         }
@@ -29,9 +29,9 @@ namespace bt
         virtual void create_phy_body() = 0;
 
     protected:
-        virtual void set_frame_data(const std::shared_ptr<game_object_frame>& object_frame) const  override
+        virtual void fill_frame_data(const std::shared_ptr<game_object_frame>& object_frame) const  override
         {
-            bt::game_object_entity::set_frame_data(object_frame);
+            bt::game_object_entity::fill_frame_data(object_frame);
             object_frame->position = { phy_body_->GetPosition().x, phy_body_->GetPosition().y };
             object_frame->rotation = phy_body_->GetAngle();
             object_frame->velocity = { phy_body_->GetLinearVelocity().x, phy_body_->GetLinearVelocity().y };
@@ -40,6 +40,6 @@ namespace bt
 
     protected:
         b2Body* phy_body_{ nullptr };
-        const physics_body_factory& ph_body_factory_;
+        std::weak_ptr<physics_body_factory> ph_body_factory_;
     };
 }

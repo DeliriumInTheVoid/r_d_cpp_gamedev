@@ -8,7 +8,7 @@ namespace bt
         tank,
         bullet,
         wall,
-        brick
+        map_forest,
     };
 
 }

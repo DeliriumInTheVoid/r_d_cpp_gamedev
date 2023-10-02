@@ -13,12 +13,10 @@
 
 namespace bt
 {
-    class game_object_frame_restorer;
-
     class player_game_object_entity : public bt::phy_game_object_entity
     {
     public:
-        player_game_object_entity(const sf::Uint32 id, const physics_body_factory& ph_body_factory)
+        player_game_object_entity(const sf::Uint32 id, const std::weak_ptr<physics_body_factory>& ph_body_factory)
             : bt::phy_game_object_entity(id, game_object_type::tank, ph_body_factory)
         {
         }
@@ -28,13 +26,14 @@ namespace bt
     public:
         virtual void create_phy_body() override
         {
+            if (ph_body_factory_.expired())
+            {
+                return;
+            }
+
             b2BodyDef tank_body_def;
             tank_body_def.type = b2_dynamicBody;
-            //tank_body_def.position.Set(
-            //    100.0f / bt::physics_consts::pixels_per_meters,
-            //    100.0f / bt::physics_consts::pixels_per_meters
-            //);
-            phy_body_ = ph_body_factory_.create_body(tank_body_def);
+            phy_body_ = ph_body_factory_.lock()->create_body(tank_body_def);
             b2PolygonShape tank_shape;
             tank_shape.SetAsBox(
                 bt::game_entity_consts::tank_size.x / bt::physics_consts::pixels_per_meters / 2,
@@ -57,14 +56,6 @@ namespace bt
         virtual void update(const float dt) override
         {
             action_controller_->update(dt);
-        }
-
-    public:
-
-        [[nodiscard]]
-        std::weak_ptr<bt::player_action_controller> get_action_controller() const
-        {
-            return action_controller_;
         }
 
         virtual void restore_frame(const bt::game_object_frame_restorer& restorer) const override
@@ -91,6 +82,20 @@ namespace bt
             action_controller_->set_turret_rotation(frame.turret_rotation);
         }
 
+    public:
+
+        [[nodiscard]]
+        std::weak_ptr<bt::player_action_controller> get_action_controller() const
+        {
+            return action_controller_;
+        }
+
+        void create_physics_body(const b2Vec2 position, const float rotation = 0.0f)
+        {
+            create_phy_body();
+            phy_body_->SetTransform(position, rotation);
+        }
+
     protected:
         [[nodiscard]]
         virtual std::shared_ptr<game_object_frame> create_frame() const override
@@ -104,9 +109,9 @@ namespace bt
             return go_frame;
         }
 
-        virtual void set_frame_data(const std::shared_ptr<game_object_frame>& object_frame) const  override
+        virtual void fill_frame_data(const std::shared_ptr<game_object_frame>& object_frame) const  override
         {
-            bt::phy_game_object_entity::set_frame_data(object_frame);
+            bt::phy_game_object_entity::fill_frame_data(object_frame);
             auto* go_frame = dynamic_cast<player_game_object_frame*>(object_frame.get());
             go_frame->turret_rotation = action_controller_->get_turret_rotation();
         }

@@ -28,7 +28,7 @@ public:
     }
 
 public:
-    bool start(const unsigned short port);
+    bool start(const unsigned int port);
     [[noreturn]] void run_infinity_loop(const size_t max_messages_in, const size_t max_messages_out, const bool wait_in);
 
 private:
@@ -48,7 +48,7 @@ private:
     std::unordered_map<sf::Uint32, sf::Uint32> connection_to_session_link_{};
 };
 
-bool game_server::start(const unsigned short port)
+bool game_server::start(const unsigned int port)
 {
     network_server_ = std::make_unique<network_server>(port);
 
@@ -95,25 +95,25 @@ bool game_server::start(const unsigned short port)
                 case player_action::move_backward:
                 case player_action::stop_move:
                     session->second->move_player(connection_id, action);
-	                break;
+                    break;
                 case player_action::turn_left:
                 case player_action::turn_right:
                 case player_action::stop_turn:
                     session->second->rotate_player(connection_id, action);
-	                break;
+                    break;
                 case player_action::turn_turret_left:
                 case player_action::turn_turret_right:
                 case player_action::stop_turn_turret:
                     session->second->rotate_player_turret(connection_id, action);
-	                break;
+                    break;
                 case player_action::turret_fire:
                 case player_action::turret_stop_fire:
-
-	                break;
+                	session->second->player_turret_fire(connection_id, action);
+                    break;
                 case player_action::unknown:
                 default:
                     //TODO:: send error to client
-                	;
+                    ;
                 }
             }
 

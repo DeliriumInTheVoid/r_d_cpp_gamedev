@@ -21,10 +21,7 @@ namespace bt
 
     public:
         virtual void restore_from_frame(const bt::game_object_frame_restorer& restorer) = 0;
-        virtual void create_render_object() = 0;
-        virtual void create_game_object_entity() = 0;
         virtual void update(float delta_time) = 0;
-        virtual void free() = 0;
 
     public:
         bt::uuid get_id() const
@@ -42,6 +39,10 @@ namespace bt
             create_game_object_entity();
             create_render_object();
         }
+
+    protected:
+        virtual void create_render_object() = 0;
+        virtual void create_game_object_entity() = 0;
 
     protected:
         bt::uuid id_;

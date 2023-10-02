@@ -2,6 +2,7 @@
 #include <cmath>
 #include <numbers>
 #include <chrono>
+#include <memory>
 #include <functional>
 
 #include "SFML/System/Clock.hpp"
@@ -14,12 +15,14 @@
 #include "renderer/renderer.hpp"
 #include "game/game_objects/player_game_object.hpp"
 #include "game/sfml_game.hpp"
-#include "game/game_objects/bullet.hpp"
+#include "game/game_objects/bullet_game_object.hpp"
 #include "physics/collision_listener.hpp"
 #include "network/client_connection.hpp"
 #include "network/connection_service.hpp"
 #include "network/player_actions.hpp"
-#include <game/game_objects/game_object_frame_restorer_packet.hpp>
+#include "game/entity/game_map_entity.hpp"
+#include "game/game_objects/forest_map_game_object.hpp"
+#include "game/game_objects/game_object_frame_restorer_packet.hpp"
 
 enum class player_game_state : unsigned int
 {
@@ -41,7 +44,7 @@ void create_test_rock(const std::unique_ptr<bt::sfml_game>& game, sf::Vector2f p
     b2BodyDef rock_body_def;
     rock_body_def.type = b2_staticBody;
     rock_body_def.position.Set(position.x / game->get_pixels_per_meters(), position.y / game->get_pixels_per_meters());
-    const auto rock_body = game->get_physics_body_factory().create_body(rock_body_def);
+    const auto rock_body = game->get_physics_body_factory().lock()->create_body(rock_body_def);
     b2PolygonShape rock_shape;
     rock_shape.SetAsBox(
         static_cast<float>(texture_data->get_size().x) / game->get_pixels_per_meters() / 2,
@@ -77,7 +80,7 @@ int main()
 
 
     constexpr float pixels_per_meters{ 10.0f }; // 1 meter = 10 pixels
-    const sf::Vector2u game_field_size{ 800, 600 };
+    const sf::Vector2u game_field_size{ 1024, 768 };
 
     auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode(game_field_size.x, game_field_size.y), "Battle Tanks");
     //window->setFramerateLimit(20);
@@ -86,17 +89,51 @@ int main()
 
     std::unique_ptr<bt::sfml_game> game = std::make_unique<bt::sfml_game>(game_field_size, window, pixels_per_meters);
 
-    // <TEXTURES>
-    auto tank_texture_render_data = std::make_shared<bt::texture_holder>("game_data/atlases/tank.png");
-    auto tower_texture_render_data = std::make_shared<bt::texture_holder>("game_data/atlases/tower.png");
-    auto bullet_texture_render_data = std::make_shared<bt::texture_holder>("game_data/atlases/bullet_1.png");
-    // </TEXTURES>
-
-
-    auto rock_texture_render_data = std::make_shared<bt::texture_holder>("game_data/atlases/rock_1.png");
-    create_test_rock(game, {200.f, 200.f}, rock_texture_render_data);
-
     bt::texture_warehouse texture_warehouse{};
+
+    auto map_atlas = bt::atlas_data{
+        bt::atlas_id::map_forest_tile_set,
+        "game_data/atlases/map_forest_tileset.png",
+        {
+            { bt::texture_id::grass_light_tl, sf::IntRect{1,1,16,16} },
+            { bt::texture_id::grass_light_tm, sf::IntRect{18,1,16,16} },
+            { bt::texture_id::grass_light_tr, sf::IntRect{35,1,16,16} },
+
+            { bt::texture_id::grass_light_lm, sf::IntRect{1,18,16,16} },
+            { bt::texture_id::grass_light_m, sf::IntRect{18,18,16,16} },
+            { bt::texture_id::grass_light_rm, sf::IntRect{35,18,16,16} },
+
+            { bt::texture_id::grass_light_bl, sf::IntRect{1,35,16,16} },
+            { bt::texture_id::grass_light_bm, sf::IntRect{18,35,16,16} },
+            { bt::texture_id::grass_light_br, sf::IntRect{35,35,16,16} },
+
+            { bt::texture_id::grass_light_dec_1, sf::IntRect{52,1,16,16} },
+            { bt::texture_id::grass_light_dec_2, sf::IntRect{69,1,16,16} },
+            { bt::texture_id::grass_light_dec_3, sf::IntRect{86,1,16,16} },
+
+            { bt::texture_id::grass_light_dec_4, sf::IntRect{52,18,16,16} },
+            { bt::texture_id::grass_light_dec_5, sf::IntRect{69,18,16,16} },
+            { bt::texture_id::grass_light_dec_6, sf::IntRect{86,18,16,16} },
+
+            { bt::texture_id::grass_light_dec_7, sf::IntRect{52,35,16,16} },
+            { bt::texture_id::grass_light_dec_8, sf::IntRect{69,35,16,16} },
+            { bt::texture_id::grass_light_dec_9, sf::IntRect{86,35,16,16} },
+
+            { bt::texture_id::grass_dark_tl, sf::IntRect{1,52,16,16} },
+            { bt::texture_id::grass_dark_tm, sf::IntRect{18,52,16,16} },
+            { bt::texture_id::grass_dark_tr, sf::IntRect{35,52,16,16} },
+
+            { bt::texture_id::grass_dark_lm, sf::IntRect{1,69,16,16} },
+            { bt::texture_id::grass_dark_m, sf::IntRect{18,69,16,16} },
+            { bt::texture_id::grass_dark_rm, sf::IntRect{35,69,16,16} },
+
+            { bt::texture_id::grass_dark_bl, sf::IntRect{1,86,16,16} },
+            { bt::texture_id::grass_dark_bm, sf::IntRect{18,86,16,16} },
+            { bt::texture_id::grass_dark_br, sf::IntRect{35,86,16,16} },
+        }
+    };
+
+    texture_warehouse.pre_load_atlas(map_atlas);
 
     bool tank_fire{ false };
     //TODO:: start move object immediately after key pressed. don't wait server to move 
@@ -104,39 +141,17 @@ int main()
     player_action tank_rotate_action{};
     player_action tower_rotate_action{};
 
-    // <EDGES>
-    b2Vec2 bottom_right_point = b2Vec2{
-            static_cast<float>(game_field_size.x) / pixels_per_meters,
-            static_cast<float>(game_field_size.y) / pixels_per_meters
-    };
-    b2BodyDef edge_body_def;
-    edge_body_def.type = b2_staticBody;
-    auto* edges_body = game->get_physics_body_factory().create_body(edge_body_def);
+    auto forest_game_map = std::make_shared<bt::forest_map_game_object>(
+        0,
+        texture_warehouse.load_pack(bt::textures_pack_id::map_forest),
+        sf::Vector2u{ 1024, 768 },
+        game->get_physics_body_factory()
+    );
+    forest_game_map->initialize();
+    game->add_game_object(forest_game_map);
 
-    b2Filter edge_filter;
-    edge_filter.categoryBits = 0x8000;
-    edge_filter.maskBits = 0x0007;
-
-    b2EdgeShape top_edge_shape;
-    top_edge_shape.SetTwoSided(b2Vec2(0.0f, 0.0f), b2Vec2(bottom_right_point.x, 0.0f));
-    auto* edge_fixture = edges_body->CreateFixture(&top_edge_shape, 1.0f);
-    edge_fixture->SetFilterData(edge_filter);
-
-    b2EdgeShape bottom_edge_shape;
-    bottom_edge_shape.SetTwoSided(b2Vec2(0.0f, bottom_right_point.y), bottom_right_point);
-    edge_fixture = edges_body->CreateFixture(&bottom_edge_shape, 1.0f);
-    edge_fixture->SetFilterData(edge_filter);
-
-    b2EdgeShape left_edge_shape;
-    left_edge_shape.SetTwoSided(b2Vec2(0.0f, 0.0f), b2Vec2(0.0f, bottom_right_point.y));
-    edge_fixture = edges_body->CreateFixture(&left_edge_shape, 1.0f);
-    edge_fixture->SetFilterData(edge_filter);
-
-    b2EdgeShape right_edge_shape;
-    right_edge_shape.SetTwoSided(b2Vec2(bottom_right_point.x, 0.0f), bottom_right_point);
-    edge_fixture = edges_body->CreateFixture(&right_edge_shape, 1.0f);
-    edge_fixture->SetFilterData(edge_filter);
-    // </EDGES>
+    auto rock_texture_render_data = std::make_shared<bt::texture_holder>("game_data/atlases/rock_1.png");
+    create_test_rock(game, { 200.f, 200.f }, rock_texture_render_data);
 
     auto bullet_creation_time = std::chrono::high_resolution_clock::now();
     while (window->isOpen())
@@ -223,30 +238,32 @@ int main()
                     {
                         bt::uuid game_object_id;
                         *packet_ref >> game_object_id;
-                        //sf::Uint32 game_object_type;
-                        //*packet_ref >> game_object_type;
 
                         bt::game_object_frame_restorer_packet restorer_packet{ packet_ref };
                         game->get_game_scene()->get_game_object(game_object_id)->restore_from_frame(restorer_packet);
-
-                        //if (game_object_type == static_cast<sf::Uint32>(bt::game_object_type::tank))
-                        //{
-                        //    bt::game_object_frame_restorer_packet restorer_packet{ packet_ref };
-                        //    player->restore_from_frame(restorer_packet);
-                        //}
-                        //else if (game_object_type == static_cast<sf::Uint32>(bt::game_object_type::bullet))
-                        //{
-                        //    sf::Uint32 bullet_id;
-                        //    *packet_ref >> bullet_id;
-                        //    sf::Vector2f bullet_position;
-                        //    *packet_ref >> bullet_position.x >> bullet_position.y;
-                        //    float bullet_rotation;
-                        //    *packet_ref >> bullet_rotation;
-                        //    std::cout << "bullet: " << bullet_id << " position: " << bullet_position.x << ", " << bullet_position.y
-                        //        << " rotation: " << bullet_rotation << std::endl;
-                        //}
                     }
                 }
+                break;
+            }
+            case command_id_server::player_shoot:
+            {
+                if (player_state == player_game_state::game_session)
+                {
+                    bt::uuid player_id;
+                    *packet_ref >> player_id;
+                    bt::uuid bullet_id;
+                    *packet_ref >> bullet_id;
+                    bt::game_object_frame_restorer_packet restorer_packet{ packet_ref };
+                    auto bullet = std::make_shared<bt::bullet_game_object>(
+                        bullet_id,
+                        game->get_physics_body_factory(),
+                        texture_warehouse.load_texture(bt::texture_id::bullet)
+                    );
+                    bullet->initialize();
+                    bullet->restore_from_frame(restorer_packet);
+                    game->add_game_object(bullet);
+                }
+                break;
             }
 
             }
@@ -355,6 +372,7 @@ int main()
 
             if (std::chrono::duration_cast<std::chrono::milliseconds>(bullet_current_time - bullet_creation_time).count() >= 1000)
             {
+                connection_service->send(player_action_command{ player_action::turret_fire });
                 /*bullet_creation_time = bullet_current_time;
                 const float bullet_rotation_rad = bt::deg_to_rad(tank_tower_sprite->getRotation() + tank_container->getRotation());
                 const b2Vec2 bullet_pos{
@@ -400,8 +418,6 @@ int main()
 
         game->update(delta_time);
     }
-
-    game->get_physics_body_factory().destroy_body(edges_body);
 
     return 0;
 }
