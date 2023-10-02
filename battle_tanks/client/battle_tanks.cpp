@@ -226,7 +226,16 @@ int main()
                 }
                 break;
             }
-
+            case command_id_server::delete_game_object:
+            {
+                if (player_state == player_game_state::game_session)
+                {
+                    bt::uuid game_object_id;
+                    *packet_ref >> game_object_id;
+                    game->delete_game_object(game_object_id);
+                }
+                break;
+            }
             }
         }
         sf::Event event;
@@ -334,46 +343,6 @@ int main()
             if (std::chrono::duration_cast<std::chrono::milliseconds>(bullet_current_time - bullet_creation_time).count() >= 1000)
             {
                 connection_service->send(player_action_command{ player_action::turret_fire });
-                /*bullet_creation_time = bullet_current_time;
-                const float bullet_rotation_rad = bt::deg_to_rad(tank_tower_sprite->getRotation() + tank_container->getRotation());
-                const b2Vec2 bullet_pos{
-                (tank_container->getPosition().x + 80 * std::sin(bullet_rotation_rad)) / pixels_per_meters,
-                (tank_container->getPosition().y - 80 * std::cos(bullet_rotation_rad)) / pixels_per_meters
-                };
-                b2BodyDef bullet_body_def;
-                bullet_body_def.type = b2_dynamicBody;
-                bullet_body_def.position.Set(bullet_pos.x, bullet_pos.y);
-                auto* bullet_body = game->get_physics_world()->CreateBody(&bullet_body_def);
-                b2PolygonShape bullet_shape;
-                bullet_shape.SetAsBox(
-                    static_cast<float>(bullet_texture_render_data->get_size().x) / pixels_per_meters / 2,
-                    static_cast<float>(bullet_texture_render_data->get_size().y) / pixels_per_meters / 2
-                );
-                auto* fixture = bullet_body->CreateFixture(&bullet_shape, 1.0f);
-                bt::uuid bullet_id = bt::generate_uuid();
-                auto* bullet_link = new bt::game_object_b2d_link{ bt::game_object_type::bullet, bullet_id };
-                bullet_body->GetUserData().pointer = reinterpret_cast<uintptr_t>(bullet_link);
-
-                b2Filter filter;
-                filter.categoryBits = 0x0001;
-                filter.maskBits = 0x8001;
-                fixture->SetFilterData(filter);
-
-                auto force = b2Vec2{
-                    std::sin(bullet_rotation_rad) * 500.0f / pixels_per_meters,
-                    -std::cos(bullet_rotation_rad) * 500.0f / pixels_per_meters
-                };
-                bullet_body->SetTransform(bullet_pos, bullet_rotation_rad);
-                bullet_body->SetLinearVelocity(force);
-
-                const auto bt = std::make_shared<bt::bullet>(bullet_id, 500.0f, bullet_texture_render_data, bullet_body);
-                bt->initialize();
-                bt->get_render_object()->setOrigin(
-                    static_cast<float>(bullet_texture_render_data->get_size().x) / 2.0f,
-                    static_cast<float>(bullet_texture_render_data->get_size().y) / 2.0f
-                );
-                game->get_game_scene()->add_game_object(bt);
-                game->get_render_scene()->add_child(bt->get_render_object());*/
             }
         }
 

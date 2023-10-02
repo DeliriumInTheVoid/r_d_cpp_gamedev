@@ -89,7 +89,7 @@ bool game_server::start(const unsigned int port)
 
             if (const auto session = sessions_.find(session_id); session != sessions_.end())
             {
-                switch(action)
+                switch (action)
                 {
                 case player_action::move_forward:
                 case player_action::move_backward:
@@ -108,7 +108,7 @@ bool game_server::start(const unsigned int port)
                     break;
                 case player_action::turret_fire:
                 case player_action::turret_stop_fire:
-                	session->second->player_turret_fire(connection_id, action);
+                    session->second->player_turret_fire(connection_id, action);
                     break;
                 case player_action::unknown:
                 default:
@@ -122,8 +122,20 @@ bool game_server::start(const unsigned int port)
     network_server_->register_client_command_handler(command_id_client::lost_connection,
         [this](const sf::Uint32 connection_id, sf::Packet& packet)
         {
-            //TODO:: remove player from session and remove session if it has one or less players
-            connection_to_session_link_.erase(connection_id);
+            if (connection_to_session_link_.contains(connection_id))
+            {
+                const auto session_id = connection_to_session_link_.at(connection_id);
+                if (sessions_.contains(session_id))
+                {
+                    const auto& session = sessions_.at(session_id);
+                    session->player_lost_connection(connection_id);
+                    if (session->get_state() == game_session_state::finished)
+                    {
+                        sessions_.erase(session_id);
+                    }
+                }
+                connection_to_session_link_.erase(connection_id);
+            }
         });
 
     return network_server_->start();

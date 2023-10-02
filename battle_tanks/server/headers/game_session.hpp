@@ -42,7 +42,8 @@ public:
         //physics_world.SetContinuousPhysics(true);;
         physics_world_.SetContactListener(&contact_listener_);
 
-        contact_listener_.add_collision_handler([this](bt::game_object_b2d_link game_object_a, bt::game_object_b2d_link game_object_b)
+        contact_listener_.add_collision_handler(
+            [this](const bt::game_object_b2d_link game_object_a, const bt::game_object_b2d_link game_object_b)
             {
                 if (game_object_a.type == bt::game_object_type::bullet)
                 {
@@ -143,6 +144,21 @@ public:
                 game_objects_.emplace(bullet_id, std::move(bullet));
                 commands_out_->push_back({ players_ids_,std::move(shot_command) });
             }
+        }
+    }
+
+    void player_lost_connection(const bt::uuid player_id)
+    {
+        std::lock_guard lock{ mutex_game_loop_ };
+        if (players_action_controllers_.contains(player_id))
+        {
+            players_action_controllers_.erase(player_id);
+            game_objects_.erase(player_id);
+            std::erase(players_ids_, player_id);
+        }
+        if (players_ids_.empty())
+        {
+            state_ = game_session_state::finished;
         }
     }
 

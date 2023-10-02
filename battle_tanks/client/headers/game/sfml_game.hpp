@@ -34,11 +34,11 @@ namespace bt
                 {
                     if (game_object_a.type == bt::game_object_type::bullet)
                     {
-                        objects_to_delete_.insert(game_object_a.id);
+                        //objects_to_delete_.insert(game_object_a.id);
                     }
                     else if (game_object_b.type == bt::game_object_type::bullet)
                     {
-                        objects_to_delete_.insert(game_object_b.id);
+                        //objects_to_delete_.insert(game_object_b.id);
                     }
                 });
 
@@ -55,6 +55,11 @@ namespace bt
         {
             game_world_->add_game_object(game_object);
             render_scene_->add_child(game_object->get_render_object());
+        }
+
+        void delete_game_object(const bt::uuid game_object_id)
+        {
+            objects_to_delete_.insert(game_object_id);
         }
 
         const std::unique_ptr<bt::game_scene>& get_game_scene() const
@@ -94,14 +99,13 @@ namespace bt
     private:
         void delete_game_objects()
         {
-            /*for (const auto& game_object_id : objects_to_delete_)
+            for (const auto& game_object_id : objects_to_delete_)
             {
                 auto game_object = game_world_->get_game_object(game_object_id);
-                physics_world_->DestroyBody(game_object->get_physics_body());
-                game_object->free();
+                render_scene_->remove_child(game_object->get_render_object());
                 game_world_->remove_game_object(game_object);
             }
-            objects_to_delete_.clear();*/
+            objects_to_delete_.clear();
         }
 
     private:
