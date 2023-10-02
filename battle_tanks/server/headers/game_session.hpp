@@ -204,10 +204,10 @@ void game_session::update()
             current_count_down_time -= clock.restart().asMilliseconds();
             if (current_count_down_time <= 0)
             {
-                std::weak_ptr<bt::physics_body_factory> physics_body_factory_weak = physics_body_factory_;
                 auto size = b2Vec2 { 102.4f, 76.8f };
-                game_map_ = std::make_unique<game_map_entity>(0, size, physics_body_factory_weak);
+                game_map_ = std::make_unique<game_map_entity>(0, size, physics_body_factory_);
                 game_map_->build_map();
+                game_map_->create_rock({ 20.0f, 20.0f }, { 5.7f, 4.2f });
 
                 state_ = game_session_state::game_play_progress;
 

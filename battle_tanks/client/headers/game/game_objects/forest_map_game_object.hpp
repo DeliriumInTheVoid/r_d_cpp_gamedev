@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/entity/game_map_entity.hpp"
 #include "renderer/textures.hpp"
 
 
@@ -27,6 +28,28 @@ namespace bt
 
         void update(float delta_time) override
         {
+        }
+    public:
+        void create_rock(const sf::Vector2f position, const std::shared_ptr<bt::texture_holder>& texture_data) const
+        {
+	        const auto main_cont = dynamic_cast<bt::container*>(render_object_.get());
+            const auto rock_sprite = std::make_shared<bt::sprite>(texture_data);
+            rock_sprite->setPosition(position);
+            const auto size = texture_data->get_size();
+            rock_sprite->setOrigin(static_cast<float>(size.x) / 2.0f, static_cast<float>(size.y) / 2.0f);
+            main_cont->add_child(rock_sprite);
+
+            const auto entity = dynamic_cast<game_map_entity*>(game_object_entity_.get());
+            entity->create_rock(
+                {
+                    position.x / physics_consts::pixels_per_meters,
+                    position.y / physics_consts::pixels_per_meters
+                },
+                {
+                    size.x / physics_consts::pixels_per_meters,
+                    size.y / physics_consts::pixels_per_meters,
+                }
+                );
         }
 
     protected:

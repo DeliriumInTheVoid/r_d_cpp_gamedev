@@ -1,9 +1,6 @@
 #include <iostream>
-#include <cmath>
-#include <numbers>
 #include <chrono>
 #include <memory>
-#include <functional>
 
 #include "SFML/System/Clock.hpp"
 #include "SFML/Graphics.hpp"
@@ -11,8 +8,6 @@
 #include <box2d/box2d.h>
 
 #include "utils/uuid.hpp"
-#include "utils/math.hpp"
-#include "renderer/renderer.hpp"
 #include "game/game_objects/player_game_object.hpp"
 #include "game/sfml_game.hpp"
 #include "game/game_objects/bullet_game_object.hpp"
@@ -20,7 +15,6 @@
 #include "network/client_connection.hpp"
 #include "network/connection_service.hpp"
 #include "network/player_actions.hpp"
-#include "game/entity/game_map_entity.hpp"
 #include "game/game_objects/forest_map_game_object.hpp"
 #include "game/game_objects/game_object_frame_restorer_packet.hpp"
 
@@ -33,39 +27,6 @@ enum class player_game_state : unsigned int
     session_lobby,
     game_session,
 };
-
-void create_test_rock(const std::unique_ptr<bt::sfml_game>& game, sf::Vector2f position, const std::shared_ptr<bt::texture_holder>& texture_data)
-{
-    const auto rock_sprite = std::make_shared<bt::sprite>(texture_data);
-    rock_sprite->setPosition(position);
-    rock_sprite->setOrigin(static_cast<float>(texture_data->get_size().x) / 2.0f, static_cast<float>(texture_data->get_size().y) / 2.0f);
-    game->get_render_scene()->add_child(rock_sprite);
-
-    b2BodyDef rock_body_def;
-    rock_body_def.type = b2_staticBody;
-    rock_body_def.position.Set(position.x / game->get_pixels_per_meters(), position.y / game->get_pixels_per_meters());
-    const auto rock_body = game->get_physics_body_factory().lock()->create_body(rock_body_def);
-    b2PolygonShape rock_shape;
-    rock_shape.SetAsBox(
-        static_cast<float>(texture_data->get_size().x) / game->get_pixels_per_meters() / 2,
-        static_cast<float>(texture_data->get_size().y) / game->get_pixels_per_meters() / 2
-    );
-    auto* fixture = rock_body->CreateFixture(&rock_shape, 1.0f);
-    b2Filter filter;
-    filter.categoryBits = 0x0002;
-    filter.maskBits = 0x8006;
-
-    fixture->SetFilterData(filter);
-
-    //bt::uuid rock_id = bt::generate_uuid();
-    //auto* rock_link = new bt::game_object_b2d_link{ bt::game_object_type::rock, rock_id };
-    //rock_body->GetUserData().pointer = reinterpret_cast<uintptr_t>(rock_link);
-
-    //const auto rock = std::make_shared<bt::rock>(rock_id, texture_data, rock_body);
-    //rock->initialize();
-    //game->get_game_scene()->add_game_object(rock);
-    //game->get_render_scene()->add_child(rock->get_render_object());
-}
 
 int main()
 {
@@ -151,7 +112,7 @@ int main()
     game->add_game_object(forest_game_map);
 
     auto rock_texture_render_data = std::make_shared<bt::texture_holder>("game_data/atlases/rock_1.png");
-    create_test_rock(game, { 200.f, 200.f }, rock_texture_render_data);
+    forest_game_map->create_rock({ 200, 200 }, rock_texture_render_data);
 
     auto bullet_creation_time = std::chrono::high_resolution_clock::now();
     while (window->isOpen())

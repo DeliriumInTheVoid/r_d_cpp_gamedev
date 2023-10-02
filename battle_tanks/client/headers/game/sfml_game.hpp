@@ -8,6 +8,7 @@
 #include "physics/collision_listener.hpp"
 #include "game_objects/game_scene.hpp"
 #include "physics/physics_body_factory.hpp"
+#include "renderer/render_scene.hpp"
 
 
 namespace bt

@@ -117,6 +117,16 @@ namespace bt
             {
                 turret_rotation_ += rotate_speed * delta_time;
             }
+
+            if (move_action_ == player_action::stop_move)
+            {
+                phy_body_->SetLinearVelocity({ 0.0f, 0.0f });
+            }
+
+            if (rotate_action_ == player_action::stop_turn)
+            {
+                phy_body_->SetAngularVelocity(0.0f);
+            }
         }
 
         b2Vec2 get_position() const

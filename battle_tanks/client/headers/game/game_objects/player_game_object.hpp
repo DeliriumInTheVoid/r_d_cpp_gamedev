@@ -6,6 +6,8 @@
 
 #include "game/entity/player_game_object_entity.hpp"
 #include "game/game_objects/game_object.hpp"
+#include "renderer/container.hpp"
+#include "renderer/sprite.hpp"
 #include "renderer/textures.hpp"
 #include "utils/uuid.hpp"
 

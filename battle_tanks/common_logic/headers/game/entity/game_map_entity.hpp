@@ -39,6 +39,31 @@ public:
         build_edges(phy_body_factory);
     }
 
+    void create_rock(const b2Vec2 position, const b2Vec2 size)
+    {
+        if (ph_body_factory_.expired())
+        {
+            return;
+        }
+        const auto phy_body_factory = ph_body_factory_.lock();
+
+        b2BodyDef rock_body_def;
+        rock_body_def.type = b2_staticBody;
+        rock_body_def.position.Set(position.x, position.y);
+        const auto rock_body = phy_body_factory->create_body(rock_body_def);
+        phy_bodies_.push_back(rock_body);
+
+        b2PolygonShape rock_shape;
+        rock_shape.SetAsBox(size.x /2.0f, size.y / 2.0f);
+        auto* fixture = rock_body->CreateFixture(&rock_shape, 1.0f);
+        b2Filter filter;
+        filter.categoryBits = 0x0002;
+        filter.maskBits = 0x8006;
+
+        fixture->SetFilterData(filter);
+    }
+
+public:
     void restore_frame(const bt::game_object_frame_restorer& restorer) const override
     {
     }

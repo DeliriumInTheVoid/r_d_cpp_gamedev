@@ -142,6 +142,7 @@ bool game_server::start(const unsigned int port)
 
 void game_server::send_commands()
 {
+    //TODO::check sessions state and delete finished or broken
     while (is_running_)
     {
         commands_out_->wait();
