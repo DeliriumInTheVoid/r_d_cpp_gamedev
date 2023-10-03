@@ -2,6 +2,7 @@
 
 #include <SFML/Config.hpp>
 
+#include "box2d/b2_math.h"
 #include "game/entity/game_object_type.hpp"
 #include "game/game_objects/game_object_frame_restorer.hpp"
 #include "network/commands.hpp"
@@ -19,8 +20,9 @@ namespace bt
         virtual ~game_object_entity() = default;
 
     public:
-        virtual void restore_frame(const bt::game_object_frame_restorer& restorer) const = 0;
+        virtual void restore_frame(const bt::game_object_frame_restorer& restorer) = 0;
         virtual void update(const float delta_time) = 0;
+        virtual bool is_out_of_edges(const b2Vec2& size) const = 0;
 
     public:
         sf::Uint32 get_id() const

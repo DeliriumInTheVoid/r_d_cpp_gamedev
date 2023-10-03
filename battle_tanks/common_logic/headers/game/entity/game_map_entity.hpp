@@ -64,12 +64,17 @@ public:
     }
 
 public:
-    void restore_frame(const bt::game_object_frame_restorer& restorer) const override
+    void restore_frame(const bt::game_object_frame_restorer& restorer) override
     {
     }
 
     void update(const float delta_time) override
     {
+    }
+
+    virtual bool is_out_of_edges(const b2Vec2& size) const override
+    {
+        return false;
     }
 
 protected:

@@ -45,7 +45,7 @@ namespace bt
 
                 b2Filter filter;
                 filter.categoryBits = 0x0001;
-                filter.maskBits = 0x8001;
+                filter.maskBits = 0x8005;//4-player, 1-bullet
                 fixture->SetFilterData(filter);
             }
 
@@ -53,7 +53,7 @@ namespace bt
             {
             }
 
-            virtual void restore_frame(const bt::game_object_frame_restorer& restorer) const override
+            virtual void restore_frame(const bt::game_object_frame_restorer& restorer) override
             {
                 game_object_frame frame{};
                 restorer.restore_frame(frame);
@@ -72,7 +72,6 @@ namespace bt
                     )
                 );
                 //phy_body_->SetAngularVelocity(frame.velocity_angle);
-                phy_body_->SetAwake(true);
             }
     public:
         void create_physics_body(const b2Vec2& player_position, const float rotation_rad, const float velocity)

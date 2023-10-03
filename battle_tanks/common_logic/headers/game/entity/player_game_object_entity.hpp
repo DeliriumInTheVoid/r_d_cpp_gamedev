@@ -9,6 +9,7 @@
 #include "physics/physics_body_factory.hpp"
 #include "game/player_action_controller.hpp"
 #include "game/game_objects/game_object_frame_restorer.hpp"
+#include "physics/game_object_b2d_link.hpp"
 
 
 namespace bt
@@ -41,9 +42,12 @@ namespace bt
             );
             auto* tank_fixture = phy_body_->CreateFixture(&tank_shape, 1.0f);
 
+            auto* bullet_link = new bt::game_object_b2d_link{ bt::game_object_type::tank, id_ };
+            phy_body_->GetUserData().pointer = reinterpret_cast<uintptr_t>(bullet_link);
+
             b2Filter tank_filter;
             tank_filter.categoryBits = 0x0004;
-            tank_filter.maskBits = 0x8002;
+            tank_filter.maskBits = 0x8007;//4-player, 2-rock, 1-bullet
             tank_fixture->SetFilterData(tank_filter);
 
             action_controller_ = std::make_shared<bt::player_action_controller>(
@@ -58,10 +62,11 @@ namespace bt
             action_controller_->update(dt);
         }
 
-        virtual void restore_frame(const bt::game_object_frame_restorer& restorer) const override
+        virtual void restore_frame(const bt::game_object_frame_restorer& restorer) override
         {
             player_game_object_frame frame{};
             restorer.restore_frame(frame);
+            health_ = frame.health;
 
             phy_body_->SetTransform(
                 b2Vec2(
@@ -70,19 +75,39 @@ namespace bt
                 ),
                 frame.rotation
             );
-            //phy_body_->SetLinearVelocity(
-            //    b2Vec2(
-            //        frame.velocity.x,
-            //        frame.velocity.y
-            //    )
-            //);
-            //phy_body_->SetAngularVelocity(frame.velocity_angle);
-            phy_body_->SetAwake(true);
+
+            if (frame.velocity.x == 0.0f && frame.velocity.y == 0.0f)
+            {
+                phy_body_->SetLinearVelocity(
+                    b2Vec2(
+                        frame.velocity.x,
+                        frame.velocity.y
+                    )
+                );
+            }
+
+            if (frame.velocity_angle == 0.0f)
+            {
+                phy_body_->SetAngularVelocity(frame.velocity_angle);
+            }
 
             action_controller_->set_turret_rotation(frame.turret_rotation);
         }
 
     public:
+        sf::Int32 get_health() const
+        {
+            return health_;
+        }
+
+        void take_damage(const sf::Int32 damage)
+        {
+	        health_ -= damage;
+	        if (health_ < 0)
+	        {
+                health_ = 0;
+	        }
+        }
 
         [[nodiscard]]
         std::weak_ptr<bt::player_action_controller> get_action_controller() const
@@ -102,7 +127,7 @@ namespace bt
         {
             auto go_frame = std::make_unique<player_game_object_frame>();
 
-            go_frame->health = 100;
+            go_frame->health = health_;
             go_frame->player_score = 0;
             go_frame->turret_rotation = action_controller_->get_turret_rotation();
 
@@ -117,9 +142,7 @@ namespace bt
         }
 
     private:
-        //TODO:: move to config
-        float move_speed_ = 100.0f;
-        float rotate_speed_ = 90.0f;
+        sf::Int32 health_{ game_entity_consts::tank_hp };
 
         std::shared_ptr<bt::player_action_controller> action_controller_{ nullptr };
 

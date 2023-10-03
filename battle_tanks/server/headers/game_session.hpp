@@ -39,7 +39,7 @@ public:
     {
         game_objects_ = std::unordered_map<sf::Uint32, std::unique_ptr<bt::game_object_entity>>{};
         physics_world_.SetAllowSleeping(true);
-        //physics_world.SetContinuousPhysics(true);;
+        //physics_world.SetContinuousPhysics(true);
         physics_world_.SetContactListener(&contact_listener_);
 
         contact_listener_.add_collision_handler(
@@ -53,6 +53,17 @@ public:
                 {
                     objects_to_delete_.insert(game_object_b.id);
                 }
+
+                //TODO:: check if it is bullet and read damage from bullet, depending on weapon type when shot was made
+                if (game_object_a.type == bt::game_object_type::tank)
+                {
+                    players_took_damage_.emplace(game_object_a.id, bt::game_entity_consts::bullet_damage);
+                }
+                if (game_object_b.type == bt::game_object_type::tank)
+                {
+                    players_took_damage_.emplace(game_object_b.id, bt::game_entity_consts::bullet_damage);
+                }
+
             });
 
         state_ = game_session_state::waiting_for_players;
@@ -206,6 +217,7 @@ private:
     std::unordered_map<sf::Uint32, std::weak_ptr<bt::player_action_controller>> players_action_controllers_{};
 
     std::vector<sf::Uint32> players_ids_{};
+    std::unordered_map<sf::Uint32, sf::Int32> players_took_damage_{};
 };
 
 void game_session::update()
@@ -220,8 +232,7 @@ void game_session::update()
             current_count_down_time -= clock.restart().asMilliseconds();
             if (current_count_down_time <= 0)
             {
-                auto size = b2Vec2 { 102.4f, 76.8f };
-                game_map_ = std::make_unique<game_map_entity>(0, size, physics_body_factory_);
+                game_map_ = std::make_unique<game_map_entity>(0, bt::physics_consts::game_field_size, physics_body_factory_);
                 game_map_->build_map();
                 game_map_->create_rock({ 20.0f, 20.0f }, { 5.7f, 4.2f });
 
@@ -271,10 +282,27 @@ void game_session::send_game_session_frame(const float delta_time)
     auto command = std::make_unique<game_frame_command>();
     for (const auto& game_object : game_objects_ | std::views::values)
     {
+        auto game_object_id = game_object->get_id();
+        if (players_took_damage_.contains(game_object_id))
+        {
+	        auto* player_ptr = dynamic_cast<bt::player_game_object_entity*>(game_objects_.at(game_object_id).get());
+            player_ptr->take_damage(players_took_damage_.at(game_object_id));
+            if (player_ptr->get_health() <= 0)
+            {
+	            objects_to_delete_.insert(game_object_id);
+            }
+        }
+        
         game_object->update(delta_time);
+
         command->game_objects.push_back(game_object->get_frame());
+        if (game_object->is_out_of_edges(bt::physics_consts::game_field_size))
+        {
+            objects_to_delete_.insert(game_object->get_id());
+        }
     }
     commands_out_->push_back({ players_ids_, std::move(command) });
+    players_took_damage_.clear();
 }
 
 bool game_session::join_player(sf::Uint32 player_id)
@@ -283,7 +311,6 @@ bool game_session::join_player(sf::Uint32 player_id)
     {
         return false;
     }
-
 
     std::lock_guard lock{ mutex_game_loop_ };
 
@@ -308,7 +335,7 @@ bool game_session::join_player(sf::Uint32 player_id)
     joined_command->player_id = player_id;
     commands_out_->push_back({ players_ids_, std::move(joined_command) });
 
-    if (players_ids_.size() == 1)
+    if (players_ids_.size() == 2)
     {
         state_ = game_session_state::starting;
         thread_game_loop_ = std::thread{ &game_session::update, this };

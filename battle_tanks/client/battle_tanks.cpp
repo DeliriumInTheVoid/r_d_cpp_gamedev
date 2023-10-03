@@ -28,6 +28,22 @@ enum class player_game_state : unsigned int
     game_session,
 };
 
+void set_text_color(sf::Text& text, const sf::Int32 current_hp)
+{
+    if (current_hp > 50)
+    {
+        text.setFillColor(sf::Color::Green);
+    }
+    else if (current_hp > 25)
+    {
+        text.setFillColor(sf::Color::Yellow);
+    }
+    else
+    {
+        text.setFillColor(sf::Color::Red);
+    }
+}
+
 int main()
 {
     auto player_state = player_game_state::disconnected;
@@ -39,18 +55,43 @@ int main()
     player_state = player_game_state::connecting;
     std::cout << "connecting..." << std::endl;
 
+    auto window = std::make_shared<sf::RenderWindow>(
+        sf::VideoMode(
+            bt::game_entity_consts::game_field_size.x,
+            bt::game_entity_consts::game_field_size.y
+        ),
+        "Battle Tanks"
+    );
+    //window->setFramerateLimit(60);
 
-    constexpr float pixels_per_meters{ 10.0f }; // 1 meter = 10 pixels
-    const sf::Vector2u game_field_size{ 1024, 768 };
-
-    auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode(game_field_size.x, game_field_size.y), "Battle Tanks");
-    //window->setFramerateLimit(20);
+    bt::uuid player_id{};
+    std::unordered_map<bt::uuid, std::shared_ptr<bt::player_game_object>> players {};
 
     sf::Clock clock;
 
-    std::unique_ptr<bt::sfml_game> game = std::make_unique<bt::sfml_game>(game_field_size, window, pixels_per_meters);
+    std::unique_ptr<bt::sfml_game> game = std::make_unique<bt::sfml_game>(
+        window,
+        bt::physics_consts::pixels_per_meters
+    );
 
     bt::texture_warehouse texture_warehouse{};
+
+    sf::Font font;
+    font.loadFromFile("game_data/fonts/wheaton capitals.otf");
+    sf::Text player_hp;
+    player_hp.setPosition(10, 10);
+    player_hp.setFont(font);
+    player_hp.setString("100");
+    player_hp.setCharacterSize(24);
+    player_hp.setFillColor(sf::Color::Green);
+    player_hp.setStyle(sf::Text::Bold);
+
+    sf::Text enemy_hp;
+    enemy_hp.setFont(font);
+    enemy_hp.setString("100");
+    enemy_hp.setCharacterSize(24);
+    enemy_hp.setFillColor(sf::Color::Green);
+    enemy_hp.setStyle(sf::Text::Bold);
 
     auto map_atlas = bt::atlas_data{
         bt::atlas_id::map_forest_tile_set,
@@ -105,7 +146,7 @@ int main()
     auto forest_game_map = std::make_shared<bt::forest_map_game_object>(
         0,
         texture_warehouse.load_pack(bt::textures_pack_id::map_forest),
-        sf::Vector2u{ 1024, 768 },
+        bt::game_entity_consts::game_field_size,
         game->get_physics_body_factory()
     );
     forest_game_map->initialize();
@@ -138,6 +179,7 @@ int main()
                 if (player_state == player_game_state::connecting)
                 {
                     player_state = player_game_state::main_lobby;
+                    *packet_ref >> player_id;
                     std::cout << "connected" << std::endl;
                 }
                 break;
@@ -185,6 +227,7 @@ int main()
                         player->initialize();
                         player->restore_from_frame(restorer_packet);
                         game->add_game_object(player);
+                        players.emplace(game_object_id, player);
                     }
                 }
                 break;
@@ -233,6 +276,11 @@ int main()
                     bt::uuid game_object_id;
                     *packet_ref >> game_object_id;
                     game->delete_game_object(game_object_id);
+
+                    if (players.contains(game_object_id))
+                    {
+                        players.erase(game_object_id);
+                    }
                 }
                 break;
             }
@@ -347,6 +395,26 @@ int main()
         }
 
         game->update(delta_time);
+
+        for (const auto& player : players | std::views::values)
+        {
+            if (player->get_id() == player_id)
+            {
+                player_hp.setString(std::to_string(player->get_health()));
+                set_text_color(player_hp, player->get_health());
+            }
+            else
+            {
+                enemy_hp.setString(std::to_string(player->get_health()));
+                set_text_color(enemy_hp, player->get_health());
+            }
+        }
+
+        enemy_hp.setPosition(static_cast<float>(bt::game_entity_consts::game_field_size.x) - enemy_hp.getLocalBounds().width - 15, 10);
+        window->draw(player_hp);
+        window->draw(enemy_hp);
+
+        window->display();
     }
 
     return 0;

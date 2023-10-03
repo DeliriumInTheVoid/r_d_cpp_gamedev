@@ -28,6 +28,16 @@ namespace bt
     public:
         virtual void create_phy_body() = 0;
 
+        virtual bool is_out_of_edges(const b2Vec2& size) const override
+        {
+            if (phy_body_ == nullptr)
+            {
+                return false;
+            }
+            const auto pos = phy_body_->GetPosition();
+            return pos.x < 0.0f || pos.x > size.x || pos.y < 0.0f || pos.y > size.y;
+        }
+
     protected:
         virtual void fill_frame_data(const std::shared_ptr<game_object_frame>& object_frame) const  override
         {

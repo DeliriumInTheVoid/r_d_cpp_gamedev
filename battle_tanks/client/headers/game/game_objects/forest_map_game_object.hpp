@@ -32,7 +32,7 @@ namespace bt
     public:
         void create_rock(const sf::Vector2f position, const std::shared_ptr<bt::texture_holder>& texture_data) const
         {
-	        const auto main_cont = dynamic_cast<bt::container*>(render_object_.get());
+            const auto main_cont = dynamic_cast<bt::container*>(render_object_.get());
             const auto rock_sprite = std::make_shared<bt::sprite>(texture_data);
             rock_sprite->setPosition(position);
             const auto size = texture_data->get_size();
@@ -46,8 +46,8 @@ namespace bt
                     position.y / physics_consts::pixels_per_meters
                 },
                 {
-                    size.x / physics_consts::pixels_per_meters,
-                    size.y / physics_consts::pixels_per_meters,
+                    static_cast<float>(size.x) / physics_consts::pixels_per_meters,
+                    static_cast<float>(size.y) / physics_consts::pixels_per_meters,
                 }
                 );
         }

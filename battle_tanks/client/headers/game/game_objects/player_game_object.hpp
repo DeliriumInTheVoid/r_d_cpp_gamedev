@@ -45,8 +45,14 @@ namespace bt
 
             if (!turret_render_object_.expired())
             {
-	            turret_render_object_.lock()->setRotation(frame->turret_rotation);
+                turret_render_object_.lock()->setRotation(frame->turret_rotation);
             }
+        }
+
+    public:
+        sf::Int32 get_health() const
+        {
+            return dynamic_cast<player_game_object_entity*>(game_object_entity_.get())->get_health();
         }
 
     protected:

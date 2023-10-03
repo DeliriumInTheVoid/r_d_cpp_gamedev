@@ -159,7 +159,7 @@ struct player_game_object_frame : game_object_frame
     virtual ~player_game_object_frame() override = default;
 
     float turret_rotation;
-    sf::Uint32 health;
+    sf::Int32 health;
     sf::Uint32 player_score;
 
     virtual void write_to_packet(sf::Packet& packet) const override
