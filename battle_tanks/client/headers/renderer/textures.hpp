@@ -8,7 +8,7 @@
 
 namespace bt
 {
-    enum class texture_id
+	enum class texture_id
     {
         unknown = 0,
         tank_base = 1,
@@ -165,9 +165,9 @@ namespace bt
         //TODO:: move atlas data to config file and create atlas_data from it
         atlas_data(
             const atlas_id id,
-            const std::string& atlas_path,
+            std::string&& atlas_path,
             const std::unordered_map<texture_id, sf::IntRect>& textures_rect)
-            : id_(id), textures_rect_(textures_rect), atlas_path_(atlas_path)
+            : id_(id), textures_rect_(textures_rect), atlas_path_(std::move(atlas_path))
         {
         }
 

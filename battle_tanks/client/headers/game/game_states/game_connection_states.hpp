@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "game/game_session.hpp"
+#include "game/game_objects/bullet_game_object.hpp"
+#include "network/connection_service.hpp"
 
 
 namespace bt
@@ -282,6 +284,13 @@ namespace bt
 
         virtual player_connection_state handle_event(const sf::Event& event) override
         {
+            //TODO:: start move object immediately after key pressed. don't wait server to move 
+            //player_action tank_move_action{};
+            //player_action tank_rotate_action{};
+            //player_action tower_rotate_action{};
+            //bool tank_fire{ false };
+            // ///////////////////////////
+
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
             {
                 connection_service_->send(player_action_command{ player_action::move_forward });
@@ -477,7 +486,7 @@ namespace bt
 
         void handle_event(const sf::Event& event)
         {
-	        const auto state = current_state_->handle_event(event);
+            const auto state = current_state_->handle_event(event);
             change_state(state);
         }
 

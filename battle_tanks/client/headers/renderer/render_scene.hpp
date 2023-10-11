@@ -8,7 +8,7 @@
 
 namespace bt
 {
-    class render_scene final : public bt::container
+    class render_scene : public bt::container
     {
     public:
         explicit render_scene(const std::shared_ptr<sf::RenderTarget>& render_target) : render_target_{ render_target }
