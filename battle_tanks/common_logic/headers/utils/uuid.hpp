@@ -3,7 +3,7 @@
 
 namespace bt
 {
-    typedef std::uint32_t uuid;
+    using uuid = std::uint32_t;
 
     uuid generate_uuid();
 

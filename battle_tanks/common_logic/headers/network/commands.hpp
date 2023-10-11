@@ -25,7 +25,7 @@ enum class command_id_server : sf::Uint32
 {
     unknown = 0,
 
-    connected_to_game = 10001,
+    connection_established = 10001,
 
     session_created = 10002,
     player_joined_to_session = 10003,

@@ -5,7 +5,6 @@
 #include "SFML/System/Clock.hpp"
 #include "SFML/Graphics.hpp"
 #include <SFML/Network.hpp>
-#include <box2d/box2d.h>
 
 #include "utils/uuid.hpp"
 #include "game/game_objects/player_game_object.hpp"
@@ -17,16 +16,8 @@
 #include "network/player_actions.hpp"
 #include "game/game_objects/forest_map_game_object.hpp"
 #include "game/game_objects/game_object_frame_restorer_packet.hpp"
+#include "game/game_states/game_connection_states.hpp"
 
-enum class player_game_state : unsigned int
-{
-    unknown = 0,
-    disconnected,
-    connecting,
-    main_lobby,
-    session_lobby,
-    game_session,
-};
 
 void set_text_color(sf::Text& text, const sf::Int32 current_hp)
 {
@@ -46,15 +37,6 @@ void set_text_color(sf::Text& text, const sf::Int32 current_hp)
 
 int main()
 {
-    auto player_state = player_game_state::disconnected;
-
-    auto commands_in = std::make_shared<ts_deque<connection_command_in>>();
-    auto connection_service = std::make_unique<bt::connection_service>(commands_in);
-    connection_service->get_connection().connect({ "localhost" }, 52000);
-
-    player_state = player_game_state::connecting;
-    std::cout << "connecting..." << std::endl;
-
     auto window = std::make_shared<sf::RenderWindow>(
         sf::VideoMode(
             bt::game_entity_consts::game_field_size.x,
@@ -64,17 +46,46 @@ int main()
     );
     //window->setFramerateLimit(60);
 
-    bt::uuid player_id{};
     std::unordered_map<bt::uuid, std::shared_ptr<bt::player_game_object>> players {};
 
     sf::Clock clock;
 
-    std::unique_ptr<bt::sfml_game> game = std::make_unique<bt::sfml_game>(
+    auto game = std::make_unique<bt::sfml_game>(
         window,
         bt::physics_consts::pixels_per_meters
     );
 
-    bt::texture_warehouse texture_warehouse{};
+    auto texture_warehouse = std::make_shared<bt::texture_warehouse>();
+
+    auto game_session = std::make_shared<bt::game_session>();
+
+    bt::connection_state_manager connection_state_manager{
+        game_session,
+        texture_warehouse,
+        game->get_physics_body_factory(),
+        [&game, &players](const std::shared_ptr<bt::player_game_object>& player_game_object)
+        {
+            game->add_game_object(player_game_object);
+            players.emplace(player_game_object->get_id(), player_game_object);
+        },
+        [&game](const std::shared_ptr<bt::game_object>& game_object)
+        {
+            game->add_game_object(game_object);
+        },
+        [&game, &players](const bt::uuid& game_object_id)
+        {
+            game->delete_game_object(game_object_id);
+            if (players.contains(game_object_id))
+            {
+                players.erase(game_object_id);
+            }
+        },
+        [&game](const bt::uuid game_object_id, const bt::game_object_frame_restorer_packet& restorer_packet)
+        {
+            game->get_game_scene()->get_game_object(game_object_id)->restore_from_frame(restorer_packet);
+        }
+    };
+    connection_state_manager.start();
 
     sf::Font font;
     font.loadFromFile("game_data/fonts/wheaton capitals.otf");
@@ -135,17 +146,18 @@ int main()
         }
     };
 
-    texture_warehouse.pre_load_atlas(map_atlas);
+    texture_warehouse->pre_load_atlas(map_atlas);
 
-    bool tank_fire{ false };
     //TODO:: start move object immediately after key pressed. don't wait server to move 
     player_action tank_move_action{};
     player_action tank_rotate_action{};
     player_action tower_rotate_action{};
+    bool tank_fire{ false };
+    // ///////////////////////////
 
     auto forest_game_map = std::make_shared<bt::forest_map_game_object>(
         0,
-        texture_warehouse.load_pack(bt::textures_pack_id::map_forest),
+        texture_warehouse->load_pack(bt::textures_pack_id::map_forest),
         bt::game_entity_consts::game_field_size,
         game->get_physics_body_factory()
     );
@@ -155,137 +167,12 @@ int main()
     auto rock_texture_render_data = std::make_shared<bt::texture_holder>("game_data/atlases/rock_1.png");
     forest_game_map->create_rock({ 200, 200 }, rock_texture_render_data);
 
-    auto bullet_creation_time = std::chrono::high_resolution_clock::now();
     while (window->isOpen())
     {
         float delta_time = clock.restart().asSeconds();
 
-        sf::Uint32 current_session{};
+        connection_state_manager.update(delta_time);
 
-        //<poll server commands>
-        connection_service->get_connection().update();
-        if (!commands_in->empty())
-        {
-            auto [connection_id, session_id, packet_ref] = commands_in->pop_front();
-            sf::Uint32 command_id;
-            *packet_ref >> command_id;
-
-            auto server_command_id = static_cast<command_id_server>(command_id);
-
-            switch (server_command_id)
-            {
-            case command_id_server::connected_to_game:
-            {
-                if (player_state == player_game_state::connecting)
-                {
-                    player_state = player_game_state::main_lobby;
-                    *packet_ref >> player_id;
-                    std::cout << "connected" << std::endl;
-                }
-                break;
-            }
-            case command_id_server::session_created:
-            {
-                if (player_state == player_game_state::main_lobby)
-                {
-                    player_state = player_game_state::session_lobby;
-                    *packet_ref >> current_session;
-                    std::cout << "session created, id: " << current_session << std::endl;
-
-                    //TODO:: parse session_id and connection_id in connection layer
-                    connection_service->get_connection().set_session_id(current_session);
-                    std::cout << "joining to session... id: " << current_session << std::endl;
-                    connection_service->send(join_session_command{ current_session });
-                }
-                break;
-            }
-            case command_id_server::player_joined_to_session:
-            {
-                if (player_state == player_game_state::session_lobby)
-                {
-                    std::cout << "joined to session, id: " << session_id << std::endl;
-                    //TODO:: add player to game session and display in session lobby connected players
-                }
-                break;
-            }
-            case command_id_server::session_started:
-            {
-                if (player_state == player_game_state::session_lobby)
-                {
-                    player_state = player_game_state::game_session;
-                    std::cout << "game session started, id: " << session_id << std::endl;
-                    *packet_ref >> session_id;
-                    //TODO:: start game world rendering and physics simulation
-                    sf::Uint32 game_objects_count;
-                    *packet_ref >> game_objects_count;
-                    for (sf::Uint32 i = 0; i < game_objects_count; ++i)
-                    {
-                        bt::uuid game_object_id;
-                        *packet_ref >> game_object_id;
-                        bt::game_object_frame_restorer_packet restorer_packet{ packet_ref };
-                        auto player = std::make_shared<bt::player_game_object>(game_object_id, texture_warehouse.load_pack(bt::textures_pack_id::tank), game->get_physics_body_factory());
-                        player->initialize();
-                        player->restore_from_frame(restorer_packet);
-                        game->add_game_object(player);
-                        players.emplace(game_object_id, player);
-                    }
-                }
-                break;
-            }
-            case command_id_server::update_game_frame:
-            {
-                if (player_state == player_game_state::game_session)
-                {
-                    sf::Uint32 game_objects_count;
-                    *packet_ref >> game_objects_count;
-                    for (sf::Uint32 i = 0; i < game_objects_count; ++i)
-                    {
-                        bt::uuid game_object_id;
-                        *packet_ref >> game_object_id;
-
-                        bt::game_object_frame_restorer_packet restorer_packet{ packet_ref };
-                        game->get_game_scene()->get_game_object(game_object_id)->restore_from_frame(restorer_packet);
-                    }
-                }
-                break;
-            }
-            case command_id_server::player_shoot:
-            {
-                if (player_state == player_game_state::game_session)
-                {
-                    bt::uuid player_id;
-                    *packet_ref >> player_id;
-                    bt::uuid bullet_id;
-                    *packet_ref >> bullet_id;
-                    bt::game_object_frame_restorer_packet restorer_packet{ packet_ref };
-                    auto bullet = std::make_shared<bt::bullet_game_object>(
-                        bullet_id,
-                        game->get_physics_body_factory(),
-                        texture_warehouse.load_texture(bt::texture_id::bullet)
-                    );
-                    bullet->initialize();
-                    bullet->restore_from_frame(restorer_packet);
-                    game->add_game_object(bullet);
-                }
-                break;
-            }
-            case command_id_server::delete_game_object:
-            {
-                if (player_state == player_game_state::game_session)
-                {
-                    bt::uuid game_object_id;
-                    *packet_ref >> game_object_id;
-                    game->delete_game_object(game_object_id);
-
-                    if (players.contains(game_object_id))
-                    {
-                        players.erase(game_object_id);
-                    }
-                }
-                break;
-            }
-            }
-        }
         sf::Event event;
         while (window->pollEvent(event))
         {
@@ -295,110 +182,14 @@ int main()
                 window->close();
             }
 
-            if (player_state == player_game_state::main_lobby)
-            {
-                //TODO:: don't allow to repeat it until server response
-                if (event.type == sf::Event::KeyReleased)
-                {
-                    if (event.key.code == sf::Keyboard::C)
-                    {
-                        std::cout << "creating session... " << std::endl;
-                        connection_service->send(client_command{ command_id_client::create_session });
-                    }
-                    else if (event.key.code == sf::Keyboard::J)
-                    {
-                        std::cout << "joining to session... id: " << 2 << std::endl;
-                        player_state = player_game_state::session_lobby;
-                        connection_service->send(join_session_command{ 2 });
-                    }
-                }
-            }
-
-            if (player_state == player_game_state::game_session)
-            {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-                {
-                    tank_move_action = player_action::move_forward;
-                    connection_service->send(player_action_command{ player_action::move_forward });
-                }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-                {
-                    tank_move_action = player_action::move_backward;
-                    connection_service->send(player_action_command{ player_action::move_backward });
-                }
-
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-                {
-                    tank_rotate_action = player_action::turn_left;
-                    connection_service->send(player_action_command{ player_action::turn_left });
-                }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-                {
-                    tank_rotate_action = player_action::turn_right;
-                    connection_service->send(player_action_command{ player_action::turn_right });
-                }
-
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-                {
-                    tower_rotate_action = player_action::turn_turret_left;
-                    connection_service->send(player_action_command{ player_action::turn_turret_left });
-                }
-                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-                {
-                    tower_rotate_action = player_action::turn_turret_right;
-                    connection_service->send(player_action_command{ player_action::turn_turret_right });
-                }
-
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-                {
-                    tank_fire = true;
-                    connection_service->send(player_action_command{ player_action::turret_fire });
-                }
-
-                if (event.type == sf::Event::KeyReleased)
-                {
-                    if (event.key.code == sf::Keyboard::W || event.key.code == sf::Keyboard::S)
-                    {
-                        tank_move_action = player_action::stop_move;
-                        connection_service->send(player_action_command{ player_action::stop_move });
-                    }
-
-                    if (event.key.code == sf::Keyboard::A || event.key.code == sf::Keyboard::D)
-                    {
-                        tank_rotate_action = player_action::stop_turn;
-                        connection_service->send(player_action_command{ player_action::stop_turn });
-                    }
-
-                    if (event.key.code == sf::Keyboard::Left || event.key.code == sf::Keyboard::Right)
-                    {
-                        tower_rotate_action = player_action::stop_turn_turret;
-                        connection_service->send(player_action_command{ player_action::stop_turn_turret });
-                    }
-
-                    if (event.key.code == sf::Keyboard::Space)
-                    {
-                        tank_fire = false;
-                        connection_service->send(player_action_command{ player_action::turret_stop_fire });
-                    }
-                }
-            }
-        }
-
-        if (tank_fire)
-        {
-            auto bullet_current_time = std::chrono::high_resolution_clock::now();
-
-            if (std::chrono::duration_cast<std::chrono::milliseconds>(bullet_current_time - bullet_creation_time).count() >= 1000)
-            {
-                connection_service->send(player_action_command{ player_action::turret_fire });
-            }
+            connection_state_manager.handle_event(event);
         }
 
         game->update(delta_time);
 
         for (const auto& player : players | std::views::values)
         {
-            if (player->get_id() == player_id)
+            if (player->get_id() == game_session->get_player_id())
             {
                 player_hp.setString(std::to_string(player->get_health()));
                 set_text_color(player_hp, player->get_health());

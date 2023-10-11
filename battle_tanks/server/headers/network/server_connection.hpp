@@ -22,7 +22,7 @@ void server_connection::connect(const sf::Uint32 id)
 {
     connection_id_ = id;
     sf::Packet packet{};
-    constexpr auto command_id = static_cast<sf::Uint32>(command_id_server::connected_to_game);
+    constexpr auto command_id = static_cast<sf::Uint32>(command_id_server::connection_established);
     packet << command_id << connection_id_;
     send(packet);
 }
