@@ -1,0 +1,6 @@
+{
+  "hp_text_color_thresholds": {
+    "wounded": 50,
+    "dying": 25
+  }
+}

@@ -1,14 +1,17 @@
 #pragma once
 
+#include <fstream>
 #include <string>
 #include <memory>
 #include <unordered_map>
 
 #include <SFML/Graphics/Texture.hpp>
+#include <nlohmann/json.hpp>
+
 
 namespace bt
 {
-	enum class texture_id
+    enum class texture_id
     {
         unknown = 0,
         tank_base = 1,
@@ -16,45 +19,51 @@ namespace bt
         bullet = 3,
 
         //atlas 
-        grass_light_m,
         grass_light_tl,
         grass_light_tm,
         grass_light_tr,
+
+        grass_light_lm,
+        grass_light_m,
+        grass_light_rm,
+
         grass_light_bl,
         grass_light_bm,
         grass_light_br,
-        grass_light_lm,
-        grass_light_rm,
 
         grass_light_dec_1,
         grass_light_dec_2,
         grass_light_dec_3,
+
         grass_light_dec_4,
         grass_light_dec_5,
         grass_light_dec_6,
+
         grass_light_dec_7,
         grass_light_dec_8,
         grass_light_dec_9,
 
-        grass_dark_m,
         grass_dark_tl,
         grass_dark_tm,
         grass_dark_tr,
+
+        grass_dark_lm,
+        grass_dark_m,
+        grass_dark_rm,
+
         grass_dark_bl,
         grass_dark_bm,
         grass_dark_br,
-        grass_dark_lm,
-        grass_dark_rm,
     };
 
-    enum class textures_pack_id
+    enum class textures_pack_id : unsigned
     {
         unknown = 0,
         tank,
         map_forest,
     };
 
-    enum class atlas_id
+    enum class atlas_id : unsigned
     {
         unknown = 0,
         map_forest_tile_set,
@@ -124,7 +133,7 @@ namespace bt
         {
             if (loader_ == nullptr)
             {
-	            return;
+                return;
             }
             for (const auto& texture_id : textures_ids_)
             {
@@ -169,6 +178,28 @@ namespace bt
             const std::unordered_map<texture_id, sf::IntRect>& textures_rect)
             : id_(id), textures_rect_(textures_rect), atlas_path_(std::move(atlas_path))
         {
+        }
+
+        explicit atlas_data(std::string&& atlas_config_path)
+        {
+            nlohmann::json atlas_config_json;
+            std::ifstream atlas_config_file(atlas_config_path);
+            atlas_config_file >> atlas_config_json;
+
+            id_ = atlas_config_json["id"].get<atlas_id>();
+            atlas_path_ = atlas_config_json["atlas_path"];
+            textures_rect_ = {};
+            for (const auto& texture_data : atlas_config_json["textures"])
+            {
+                textures_rect_.emplace(
+                    texture_data["id"].get<texture_id>(),
+                    sf::IntRect{
+                        texture_data["x"].get<int>(),
+                        texture_data["y"].get<int>(),
+                        texture_data["w"].get<int>(),
+                        texture_data["h"].get<int>() }
+                );
+            }
         }
 
         ~atlas_data() = default;

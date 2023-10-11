@@ -5,7 +5,6 @@ file(GLOB_RECURSE SOURCES "./*.cpp")
 include_directories(${PROJECT_SOURCE_DIR}/headers)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
-find_package(box2d CONFIG REQUIRED)
 
 add_executable (${PROJECT_NAME} ${SOURCES})
 

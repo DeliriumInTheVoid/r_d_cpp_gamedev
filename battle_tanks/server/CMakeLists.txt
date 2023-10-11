@@ -4,9 +4,6 @@ file(GLOB_RECURSE SOURCES "./*.cpp")
 
 include_directories(${PROJECT_SOURCE_DIR}/headers)
 
-find_package(SFML COMPONENTS system CONFIG REQUIRED)
-find_package(box2d CONFIG REQUIRED)
-
 add_executable (${PROJECT_NAME} ${SOURCES})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)

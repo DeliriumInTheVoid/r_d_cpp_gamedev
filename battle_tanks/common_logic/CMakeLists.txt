@@ -8,6 +8,7 @@ file(GLOB_RECURSE SOURCES_CPP "./*.cpp")
 
 find_package(SFML COMPONENTS system CONFIG REQUIRED)
 find_package(box2d CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 add_library(${LIB_NAME} STATIC ${SOURCES_CPP})
 
@@ -24,4 +25,5 @@ target_link_libraries(${LIB_NAME}
         sfml-system
         sfml-network
         box2d::box2d
+        nlohmann_json::nlohmann_json
 )

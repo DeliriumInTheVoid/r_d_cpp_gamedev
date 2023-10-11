@@ -33,7 +33,10 @@ namespace bt
             debug_draw_.AppendFlags(b2Draw::e_shapeBit);
             physics_world_.SetDebugDraw(&debug_draw_);
 
-            contact_listener_->add_collision_handler([this](bt::game_object_b2d_link game_object_a, bt::game_object_b2d_link game_object_b)
+            contact_listener_->add_collision_handler([this](
+                const bt::game_object_b2d_link game_object_a,
+                const bt::game_object_b2d_link game_object_b
+                )
                 {
                     if (game_object_a.type == bt::game_object_type::bullet)
                     {
@@ -48,47 +51,7 @@ namespace bt
             physics_body_factory_ = std::make_shared<physics_body_factory>(&physics_world_);
 
             texture_warehouse_ = std::make_shared<bt::texture_warehouse>();
-            const auto map_atlas = bt::atlas_data{
-                bt::atlas_id::map_forest_tile_set,
-        "game_data/atlases/map_forest_tileset.png",
-        {
-                    { bt::texture_id::grass_light_tl, sf::IntRect{1,1,16,16} },
-                    { bt::texture_id::grass_light_tm, sf::IntRect{18,1,16,16} },
-                    { bt::texture_id::grass_light_tr, sf::IntRect{35,1,16,16} },
-
-                    { bt::texture_id::grass_light_lm, sf::IntRect{1,18,16,16} },
-                    { bt::texture_id::grass_light_m, sf::IntRect{18,18,16,16} },
-                    { bt::texture_id::grass_light_rm, sf::IntRect{35,18,16,16} },
-
-                    { bt::texture_id::grass_light_bl, sf::IntRect{1,35,16,16} },
-                    { bt::texture_id::grass_light_bm, sf::IntRect{18,35,16,16} },
-                    { bt::texture_id::grass_light_br, sf::IntRect{35,35,16,16} },
-
-                    { bt::texture_id::grass_light_dec_1, sf::IntRect{52,1,16,16} },
-                    { bt::texture_id::grass_light_dec_2, sf::IntRect{69,1,16,16} },
-                    { bt::texture_id::grass_light_dec_3, sf::IntRect{86,1,16,16} },
-
-                    { bt::texture_id::grass_light_dec_4, sf::IntRect{52,18,16,16} },
-                    { bt::texture_id::grass_light_dec_5, sf::IntRect{69,18,16,16} },
-                    { bt::texture_id::grass_light_dec_6, sf::IntRect{86,18,16,16} },
-
-                    { bt::texture_id::grass_light_dec_7, sf::IntRect{52,35,16,16} },
-                    { bt::texture_id::grass_light_dec_8, sf::IntRect{69,35,16,16} },
-                    { bt::texture_id::grass_light_dec_9, sf::IntRect{86,35,16,16} },
-
-                    { bt::texture_id::grass_dark_tl, sf::IntRect{1,52,16,16} },
-                    { bt::texture_id::grass_dark_tm, sf::IntRect{18,52,16,16} },
-                    { bt::texture_id::grass_dark_tr, sf::IntRect{35,52,16,16} },
-
-                    { bt::texture_id::grass_dark_lm, sf::IntRect{1,69,16,16} },
-                    { bt::texture_id::grass_dark_m, sf::IntRect{18,69,16,16} },
-                    { bt::texture_id::grass_dark_rm, sf::IntRect{35,69,16,16} },
-
-                    { bt::texture_id::grass_dark_bl, sf::IntRect{1,86,16,16} },
-                    { bt::texture_id::grass_dark_bm, sf::IntRect{18,86,16,16} },
-                    { bt::texture_id::grass_dark_br, sf::IntRect{35,86,16,16} },
-                }
-            };
+            const auto map_atlas = bt::atlas_data{ "game_data/atlases/map_forest_tileset.json" };
 
             texture_warehouse_->pre_load_atlas(map_atlas);
 
@@ -135,9 +98,7 @@ namespace bt
             connection_state_manager_->start();
         }
 
-        ~sfml_game()
-        {
-        }
+        ~sfml_game() = default;
 
     public:
         void add_game_object(const std::shared_ptr<bt::game_object>& game_object) const
