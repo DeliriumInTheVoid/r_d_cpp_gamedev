@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <thread>
 
 #include "SFML/Config.hpp"
 #include "SFML/Network/Packet.hpp"
