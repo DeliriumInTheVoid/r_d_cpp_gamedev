@@ -40,3 +40,7 @@ add_subdirectory ("lesson_24")
 add_subdirectory ("lesson_25")
 add_subdirectory ("lesson_26")
 add_subdirectory ("lesson_27")
+
+add_subdirectory ("battle_tanks/common_logic")
+add_subdirectory ("battle_tanks/client")
+add_subdirectory ("battle_tanks/server")
